@@ -1,11 +1,16 @@
-
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const countdownTimerRef = useRef<HTMLDivElement>(null);
+
+  // Function to handle Stripe checkout
+  const handleCheckout = () => {
+    window.open("https://buy.stripe.com/aFa9ASgRq8E803b4RX2kw00", "_blank");
+  };
 
   // Function to handle scroll animations
   useEffect(() => {
@@ -60,14 +65,14 @@ const Index = () => {
       if (text && text.includes('120,000+')) {
         let count = 0;
         const target = 120000;
-        const increment = target / 100;
+        const increment = Math.floor(target / 100);
         const timer = setInterval(() => {
           count += increment;
           if (count >= target) {
-            stat.textContent = '120,000+';
+            if (stat.textContent) stat.textContent = '120,000+';
             clearInterval(timer);
           } else {
-            stat.textContent = Math.floor(count).toLocaleString() + '+';
+            if (stat.textContent) stat.textContent = Math.floor(count).toLocaleString() + '+';
           }
         }, 20);
       }
@@ -82,7 +87,7 @@ const Index = () => {
       tomorrow.setDate(now.getDate() + 1);
       tomorrow.setHours(0, 0, 0, 0); // Set to midnight
       
-      const timeLeft = tomorrow - now;
+      const timeLeft = tomorrow.getTime() - now.getTime();
       
       const hours = Math.floor(timeLeft / (1000 * 60 * 60));
       const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
@@ -156,12 +161,12 @@ const Index = () => {
             {mobileMenuOpen ? <X /> : <Menu />}
           </button>
           
-          <a 
-            href="#pricing" 
+          <button 
+            onClick={handleCheckout}
             className="hidden md:inline-block bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-6 py-3 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)]"
           >
             Get Offer Now
-          </a>
+          </button>
           
           <div 
             id="mobile-menu" 
@@ -172,7 +177,12 @@ const Index = () => {
             <a href="#pricing" className="block text-white py-4 border-b border-[rgba(255,255,255,0.1)] hover:text-[#ffd700]">Pricing</a>
             <a href="#about" className="block text-white py-4 border-b border-[rgba(255,255,255,0.1)] hover:text-[#ffd700]">About</a>
             <a href="#contact" className="block text-white py-4 border-b border-[rgba(255,255,255,0.1)] hover:text-[#ffd700]">Contact</a>
-            <a href="#pricing" className="mt-4 block text-center bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] py-3 px-6 rounded-full font-bold">Get Offer Now</a>
+            <button 
+              onClick={handleCheckout} 
+              className="mt-4 block w-full text-center bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] py-3 px-6 rounded-full font-bold"
+            >
+              Get Offer Now
+            </button>
           </div>
         </nav>
       </header>
@@ -198,12 +208,12 @@ const Index = () => {
               </div>
             </div>
 
-            <a 
-              href="#pricing" 
+            <button
+              onClick={handleCheckout}
               className="text-xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-10 py-4 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)]"
             >
               Explore Collection
-            </a>
+            </button>
           </div>
         </div>
       </section>
@@ -305,12 +315,12 @@ const Index = () => {
                 <li className="py-2 text-gray-600 before:content-['✓'] before:text-[#ffd700] before:font-bold before:mr-2">No monthly fees ever</li>
               </ul>
               
-              <a 
-                href="#contact" 
+              <button
+                onClick={handleCheckout}
                 className="w-full block text-xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-10 py-4 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)]"
               >
                 Get Instant Access - $19.99
-              </a>
+              </button>
               
               <p className="text-sm text-gray-600 mt-4">🔒 Secure payment processing available</p>
             </div>

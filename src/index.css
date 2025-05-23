@@ -148,6 +148,21 @@
   animation: float 20s ease-in-out infinite;
 }
 
+/* Ken Burns effect for hero section */
+@keyframes kenBurns {
+  0% {
+      transform: scale(1);
+  }
+  100% {
+      transform: scale(1.2);
+  }
+}
+
+.hero {
+  transform-origin: center center;
+  animation: kenBurns 10s ease-in-out infinite alternate;
+}
+
 /* Category card shimmer effect */
 .category-card::before {
   content: '';

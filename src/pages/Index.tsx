@@ -139,6 +139,33 @@ const Index = () => {
     };
   }, []);
 
+  // Handle video overlay clicks
+  useEffect(() => {
+    const videoOverlays = document.querySelectorAll('.video-overlay');
+    
+    videoOverlays.forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        const container = overlay.closest('.video-container');
+        if (container) {
+          const video = container.querySelector('video');
+          if (video) {
+            video.play();
+            overlay.classList.add('hidden');
+            
+            // Show overlay again when video pauses or ends
+            video.addEventListener('pause', () => {
+              overlay.classList.remove('hidden');
+            });
+            
+            video.addEventListener('ended', () => {
+              overlay.classList.remove('hidden');
+            });
+          }
+        }
+      });
+    });
+  }, []);
+
   return (
     <div className="min-h-screen overflow-x-hidden">
       <header className="fixed w-full top-0 z-50 bg-gradient-to-r from-[#1a1a1a] to-[#2d2d2d] text-white py-4 backdrop-blur-lg">
@@ -214,6 +241,90 @@ const Index = () => {
             >
               Explore Collection
             </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="video-showcase bg-gradient-to-r from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a] text-white py-24" id="showcase">
+        <div className="container mx-auto px-5">
+          <h2 className="section-title text-4xl md:text-5xl text-center font-bold mb-6 text-white animate-on-scroll">Experience Premium Quality</h2>
+          <p className="text-center text-xl text-gray-300 mb-12 max-w-3xl mx-auto animate-on-scroll">
+            See the stunning 4K quality that sets LuxeVision apart
+          </p>
+            
+          <div className="video-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div className="video-card bg-[#2d2d2d] rounded-xl overflow-hidden shadow-lg animate-on-scroll">
+              <div className="video-container relative">
+                <video 
+                  poster="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&h=350&fit=crop&crop=center" 
+                  controls 
+                  preload="metadata"
+                  className="w-full h-full object-cover">
+                  <source src="luxury-resort.mp4" type="video/mp4" />
+                  <p>Your browser doesn't support video playback.</p>
+                </video>
+                <div className="video-overlay absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center cursor-pointer transition-opacity hover:bg-opacity-30">
+                  <div className="play-button w-16 h-16 flex items-center justify-center rounded-full bg-[#ffd700] bg-opacity-90 text-[#1a1a1a] text-2xl">▶</div>
+                </div>
+              </div>
+            </div>
+              
+            <div className="video-card bg-[#2d2d2d] rounded-xl overflow-hidden shadow-lg animate-on-scroll">
+              <div className="video-container relative">
+                <video 
+                  poster="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=500&h=350&fit=crop&crop=center" 
+                  controls 
+                  preload="metadata"
+                  className="w-full h-full object-cover">
+                  <source src="exotic-island.mp4" type="video/mp4" />
+                  <p>Your browser doesn't support video playback.</p>
+                </video>
+                <div className="video-overlay absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center cursor-pointer transition-opacity hover:bg-opacity-30">
+                  <div className="play-button w-16 h-16 flex items-center justify-center rounded-full bg-[#ffd700] bg-opacity-90 text-[#1a1a1a] text-2xl">▶</div>
+                </div>
+              </div>
+            </div>
+              
+            <div className="video-card bg-[#2d2d2d] rounded-xl overflow-hidden shadow-lg animate-on-scroll">
+              <div className="video-container relative">
+                <video 
+                  poster="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=500&h=350&fit=crop&crop=center" 
+                  controls 
+                  preload="metadata"
+                  className="w-full h-full object-cover">
+                  <source src="supercar-collection.mp4" type="video/mp4" />
+                  <p>Your browser doesn't support video playback.</p>
+                </video>
+                <div className="video-overlay absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center cursor-pointer transition-opacity hover:bg-opacity-30">
+                  <div className="play-button w-16 h-16 flex items-center justify-center rounded-full bg-[#ffd700] bg-opacity-90 text-[#1a1a1a] text-2xl">▶</div>
+                </div>
+              </div>
+            </div>
+              
+            <div className="video-card bg-[#2d2d2d] rounded-xl overflow-hidden shadow-lg animate-on-scroll">
+              <div className="video-container relative">
+                <video 
+                  poster="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=350&fit=crop&crop=center" 
+                  controls 
+                  preload="metadata"
+                  className="w-full h-full object-cover">
+                  <source src="fine-dining.mp4" type="video/mp4" />
+                  <p>Your browser doesn't support video playback.</p>
+                </video>
+                <div className="video-overlay absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center cursor-pointer transition-opacity hover:bg-opacity-30">
+                  <div className="play-button w-16 h-16 flex items-center justify-center rounded-full bg-[#ffd700] bg-opacity-90 text-[#1a1a1a] text-2xl">▶</div>
+                </div>
+              </div>
+            </div>
+          </div>
+            
+          <div className="text-center mt-10">
+            <a 
+              href="#pricing" 
+              className="text-xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-10 py-4 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)]"
+            >
+              Access All 120,000+ Videos
+            </a>
           </div>
         </div>
       </section>

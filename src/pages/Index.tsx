@@ -277,7 +277,8 @@ const Index = () => {
                     poster={video.poster}
                     controls 
                     preload="metadata"
-                    className="w-full h-full object-cover">
+                    className="w-full h-full object-cover"
+                    playsInline>
                     <source src={video.source} type="video/mp4" />
                     <p>Your browser doesn't support video playback.</p>
                   </video>

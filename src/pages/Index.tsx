@@ -282,7 +282,7 @@ const Index = () => {
                     <p>Your browser doesn't support video playback.</p>
                   </video>
                   <div className="video-overlay absolute inset-0 flex items-center justify-center cursor-pointer transition-opacity hover:bg-opacity-30">
-                    <div className="play-button flex items-center justify-center rounded-full bg-[#ffd700] bg-opacity-90 text-[#1a1a1a] text-2xl">▶</div>
+                    <div className="play-button">▶</div>
                   </div>
                 </div>
               </div>

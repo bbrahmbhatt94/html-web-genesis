@@ -252,70 +252,41 @@ const Index = () => {
             See the stunning 4K quality that sets LuxeVision apart
           </p>
             
-          <div className="video-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            <div className="video-card bg-[#2d2d2d] rounded-xl overflow-hidden shadow-lg animate-on-scroll">
-              <div className="video-container relative">
-                <video 
-                  poster="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&h=350&fit=crop&crop=center" 
-                  controls 
-                  preload="metadata"
-                  className="w-full h-full object-cover">
-                  <source src="luxury-resort.mp4" type="video/mp4" />
-                  <p>Your browser doesn't support video playback.</p>
-                </video>
-                <div className="video-overlay absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center cursor-pointer transition-opacity hover:bg-opacity-30">
-                  <div className="play-button w-16 h-16 flex items-center justify-center rounded-full bg-[#ffd700] bg-opacity-90 text-[#1a1a1a] text-2xl">▶</div>
+          <div className="reels-container">
+            {[
+              {
+                poster: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=250&h=350&fit=crop&crop=center",
+                source: "luxury-resort.mp4"
+              },
+              {
+                poster: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=250&h=350&fit=crop&crop=center",
+                source: "exotic-island.mp4"
+              },
+              {
+                poster: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=250&h=350&fit=crop&crop=center",
+                source: "supercar-collection.mp4"
+              },
+              {
+                poster: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=250&h=350&fit=crop&crop=center",
+                source: "fine-dining.mp4"
+              }
+            ].map((video, index) => (
+              <div key={index} className="reel-card animate-on-scroll">
+                <div className="video-container">
+                  <video 
+                    poster={video.poster}
+                    controls 
+                    preload="metadata"
+                    className="w-full h-full object-cover">
+                    <source src={video.source} type="video/mp4" />
+                    <p>Your browser doesn't support video playback.</p>
+                  </video>
+                  <div className="video-overlay absolute inset-0 flex items-center justify-center cursor-pointer transition-opacity hover:bg-opacity-30">
+                    <div className="play-button flex items-center justify-center rounded-full bg-[#ffd700] bg-opacity-90 text-[#1a1a1a] text-2xl">▶</div>
+                  </div>
                 </div>
               </div>
-            </div>
-              
-            <div className="video-card bg-[#2d2d2d] rounded-xl overflow-hidden shadow-lg animate-on-scroll">
-              <div className="video-container relative">
-                <video 
-                  poster="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=500&h=350&fit=crop&crop=center" 
-                  controls 
-                  preload="metadata"
-                  className="w-full h-full object-cover">
-                  <source src="exotic-island.mp4" type="video/mp4" />
-                  <p>Your browser doesn't support video playback.</p>
-                </video>
-                <div className="video-overlay absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center cursor-pointer transition-opacity hover:bg-opacity-30">
-                  <div className="play-button w-16 h-16 flex items-center justify-center rounded-full bg-[#ffd700] bg-opacity-90 text-[#1a1a1a] text-2xl">▶</div>
-                </div>
-              </div>
-            </div>
-              
-            <div className="video-card bg-[#2d2d2d] rounded-xl overflow-hidden shadow-lg animate-on-scroll">
-              <div className="video-container relative">
-                <video 
-                  poster="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=500&h=350&fit=crop&crop=center" 
-                  controls 
-                  preload="metadata"
-                  className="w-full h-full object-cover">
-                  <source src="supercar-collection.mp4" type="video/mp4" />
-                  <p>Your browser doesn't support video playback.</p>
-                </video>
-                <div className="video-overlay absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center cursor-pointer transition-opacity hover:bg-opacity-30">
-                  <div className="play-button w-16 h-16 flex items-center justify-center rounded-full bg-[#ffd700] bg-opacity-90 text-[#1a1a1a] text-2xl">▶</div>
-                </div>
-              </div>
-            </div>
-              
-            <div className="video-card bg-[#2d2d2d] rounded-xl overflow-hidden shadow-lg animate-on-scroll">
-              <div className="video-container relative">
-                <video 
-                  poster="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=350&fit=crop&crop=center" 
-                  controls 
-                  preload="metadata"
-                  className="w-full h-full object-cover">
-                  <source src="fine-dining.mp4" type="video/mp4" />
-                  <p>Your browser doesn't support video playback.</p>
-                </video>
-                <div className="video-overlay absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center cursor-pointer transition-opacity hover:bg-opacity-30">
-                  <div className="play-button w-16 h-16 flex items-center justify-center rounded-full bg-[#ffd700] bg-opacity-90 text-[#1a1a1a] text-2xl">▶</div>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
             
           <div className="text-center mt-10">

@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
@@ -144,7 +145,7 @@ const Index = () => {
     const videoOverlays = document.querySelectorAll('.video-overlay');
     
     videoOverlays.forEach(overlay => {
-      overlay.addEventListener('click', (e) => {
+      overlay.addEventListener('click', () => {
         const container = overlay.closest('.video-container');
         if (container) {
           const video = container.querySelector('video');

@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trackInitiateCheckout, trackViewContent } from "@/utils/metaPixel";
-
 const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const countdownTimerRef = useRef<HTMLDivElement>(null);
@@ -12,7 +11,6 @@ const Index = () => {
   const handleCheckout = () => {
     // Track checkout initiation
     trackInitiateCheckout(19.99, 'USD');
-    
     window.open("https://buy.stripe.com/aFa9ASgRq8E803b4RX2kw00", "_blank");
   };
 
@@ -27,19 +25,16 @@ const Index = () => {
       threshold: 0.1,
       rootMargin: '0px 0px -50px 0px'
     };
-
-    const observer = new IntersectionObserver((entries) => {
+    const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('animated');
         }
       });
     }, observerOptions);
-
     document.querySelectorAll('.animate-on-scroll').forEach(el => {
       observer.observe(el);
     });
-
     return () => {
       observer.disconnect();
     };
@@ -47,7 +42,7 @@ const Index = () => {
 
   // Function to animate numbers in stats
   useEffect(() => {
-    const statsObserver = new IntersectionObserver((entries) => {
+    const statsObserver = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           animateNumbers();
@@ -55,12 +50,10 @@ const Index = () => {
         }
       });
     });
-
     const statsSection = document.querySelector('.stats');
     if (statsSection) {
       statsObserver.observe(statsSection);
     }
-
     return () => {
       statsObserver.disconnect();
     };
@@ -95,22 +88,20 @@ const Index = () => {
       const tomorrow = new Date();
       tomorrow.setDate(now.getDate() + 1);
       tomorrow.setHours(0, 0, 0, 0); // Set to midnight
-      
+
       const timeLeft = tomorrow.getTime() - now.getTime();
-      
       const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-      
+      const minutes = Math.floor(timeLeft % (1000 * 60 * 60) / (1000 * 60));
+      const seconds = Math.floor(timeLeft % (1000 * 60) / 1000);
+
       // Update the display
       const hoursEl = document.getElementById('hours');
       const minutesEl = document.getElementById('minutes');
       const secondsEl = document.getElementById('seconds');
-      
       if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
       if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
       if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
-      
+
       // Add pulsing effect when time is running low
       if (countdownTimerRef.current) {
         if (hours === 0 && minutes < 10) {
@@ -120,11 +111,10 @@ const Index = () => {
         }
       }
     };
-    
+
     // Update immediately and then every second
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
-    
     return () => clearInterval(interval);
   }, []);
 
@@ -133,16 +123,11 @@ const Index = () => {
     const handleClickOutside = (e: MouseEvent) => {
       const mobileMenu = document.getElementById('mobile-menu');
       const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-      
-      if (mobileMenu && mobileMenuToggle && 
-          !mobileMenu.contains(e.target as Node) && 
-          !mobileMenuToggle.contains(e.target as Node)) {
+      if (mobileMenu && mobileMenuToggle && !mobileMenu.contains(e.target as Node) && !mobileMenuToggle.contains(e.target as Node)) {
         setMobileMenuOpen(false);
       }
     };
-    
     document.addEventListener('click', handleClickOutside);
-    
     return () => {
       document.removeEventListener('click', handleClickOutside);
     };
@@ -151,7 +136,6 @@ const Index = () => {
   // Handle video overlay clicks
   useEffect(() => {
     const videoOverlays = document.querySelectorAll('.video-overlay');
-    
     videoOverlays.forEach(overlay => {
       overlay.addEventListener('click', () => {
         const container = overlay.closest('.video-container');
@@ -160,12 +144,11 @@ const Index = () => {
           if (video) {
             video.play();
             overlay.classList.add('hidden');
-            
+
             // Show overlay again when video pauses or ends
             video.addEventListener('pause', () => {
               overlay.classList.remove('hidden');
             });
-            
             video.addEventListener('ended', () => {
               overlay.classList.remove('hidden');
             });
@@ -174,9 +157,7 @@ const Index = () => {
       });
     });
   }, []);
-
-  return (
-    <div className="min-h-screen overflow-x-hidden">
+  return <div className="min-h-screen overflow-x-hidden">
       <header className="fixed w-full top-0 z-50 bg-gradient-to-r from-[#1a1a1a] to-[#2d2d2d] text-white py-4 backdrop-blur-lg">
         <nav className="container mx-auto px-5 flex justify-between items-center">
           <div className="text-2xl font-bold bg-gradient-to-r from-[#ffd700] to-[#ffed4e] bg-clip-text text-transparent">LuxeVision</div>
@@ -189,34 +170,21 @@ const Index = () => {
             <li><a href="#contact" className="text-white hover:text-[#ffd700] transition-colors">Contact</a></li>
           </ul>
           
-          <button 
-            id="mobile-menu-toggle"
-            className="md:hidden text-white text-2xl bg-transparent border-none cursor-pointer p-1"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
+          <button id="mobile-menu-toggle" className="md:hidden text-white text-2xl bg-transparent border-none cursor-pointer p-1" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? <X /> : <Menu />}
           </button>
           
-          <button 
-            onClick={handleCheckout}
-            className="hidden md:inline-block bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-6 py-3 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)]"
-          >
+          <button onClick={handleCheckout} className="hidden md:inline-block bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-6 py-3 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)]">
             Get Offer Now
           </button>
           
-          <div 
-            id="mobile-menu" 
-            className={`absolute top-full left-0 right-0 bg-[rgba(26,26,26,0.95)] backdrop-blur-lg border-t border-[rgba(255,215,0,0.3)] p-4 ${mobileMenuOpen ? 'block' : 'hidden'} md:hidden`}
-          >
+          <div id="mobile-menu" className={`absolute top-full left-0 right-0 bg-[rgba(26,26,26,0.95)] backdrop-blur-lg border-t border-[rgba(255,215,0,0.3)] p-4 ${mobileMenuOpen ? 'block' : 'hidden'} md:hidden`}>
             <a href="#home" className="block text-white py-4 border-b border-[rgba(255,255,255,0.1)] hover:text-[#ffd700]">Home</a>
             <a href="#categories" className="block text-white py-4 border-b border-[rgba(255,255,255,0.1)] hover:text-[#ffd700]">Categories</a>
             <a href="#pricing" className="block text-white py-4 border-b border-[rgba(255,255,255,0.1)] hover:text-[#ffd700]">Pricing</a>
             <a href="#about" className="block text-white py-4 border-b border-[rgba(255,255,255,0.1)] hover:text-[#ffd700]">About</a>
             <a href="#contact" className="block text-white py-4 border-b border-[rgba(255,255,255,0.1)] hover:text-[#ffd700]">Contact</a>
-            <button 
-              onClick={handleCheckout} 
-              className="mt-4 block w-full text-center bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] py-3 px-6 rounded-full font-bold"
-            >
+            <button onClick={handleCheckout} className="mt-4 block w-full text-center bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] py-3 px-6 rounded-full font-bold">
               Get Offer Now
             </button>
           </div>
@@ -244,10 +212,7 @@ const Index = () => {
               </div>
             </div>
 
-            <button
-              onClick={handleCheckout}
-              className="text-xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-10 py-4 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)]"
-            >
+            <button onClick={handleCheckout} className="text-xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-10 py-4 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)]">
               Explore Collection
             </button>
           </div>
@@ -262,33 +227,21 @@ const Index = () => {
           </p>
             
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto">
-            {[
-              {
-                poster: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=250&h=350&fit=crop&crop=center",
-                source: "luxury-resort.mp4"
-              },
-              {
-                poster: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=250&h=350&fit=crop&crop=center",
-                source: "exotic-island.mp4"
-              },
-              {
-                poster: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=250&h=350&fit=crop&crop=center",
-                source: "supercar-collection.mp4"
-              },
-              {
-                poster: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=250&h=350&fit=crop&crop=center",
-                source: "fine-dining.mp4"
-              }
-            ].map((video, index) => (
-              <div key={index} className="w-full animate-on-scroll">
+            {[{
+            poster: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=250&h=350&fit=crop&crop=center",
+            source: "luxury-resort.mp4"
+          }, {
+            poster: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=250&h=350&fit=crop&crop=center",
+            source: "exotic-island.mp4"
+          }, {
+            poster: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=250&h=350&fit=crop&crop=center",
+            source: "supercar-collection.mp4"
+          }, {
+            poster: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=250&h=350&fit=crop&crop=center",
+            source: "fine-dining.mp4"
+          }].map((video, index) => <div key={index} className="w-full animate-on-scroll">
                 <div className="relative aspect-[9/16] w-full max-w-[300px] mx-auto bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-[#ffd700]">
-                  <video 
-                    poster={video.poster}
-                    controls 
-                    preload="metadata"
-                    className="w-full h-full object-cover"
-                    playsInline
-                    controlsList="nodownload">
+                  <video poster={video.poster} controls preload="metadata" className="w-full h-full object-cover" playsInline controlsList="nodownload">
                     <source src={video.source} type="video/mp4" />
                     <p>Your browser doesn't support video playback.</p>
                   </video>
@@ -298,15 +251,11 @@ const Index = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              </div>)}
           </div>
             
           <div className="text-center mt-8 md:mt-10 px-4">
-            <a 
-              href="#pricing" 
-              className="inline-block text-lg md:text-xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-6 md:px-10 py-3 md:py-4 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)]"
-            >
+            <a href="#pricing" className="inline-block text-lg md:text-xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-6 md:px-10 py-3 md:py-4 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)]">
               Access All Videos
             </a>
           </div>
@@ -342,10 +291,7 @@ const Index = () => {
                 </div>
               </div>
             </div>
-            <button
-              onClick={handleCheckout}
-              className="text-xl md:text-2xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-8 md:px-12 py-4 md:py-5 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(255,215,0,0.4)] animate-pulse"
-            >
+            <button onClick={handleCheckout} className="text-xl md:text-2xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-8 md:px-12 py-4 md:py-5 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(255,215,0,0.4)] animate-pulse">
               Claim Your 90% Discount Now - $19.99
             </button>
             <p className="text-sm md:text-base mt-4 opacity-80">
@@ -360,30 +306,52 @@ const Index = () => {
           <h2 className="section-title text-4xl md:text-5xl text-center font-bold mb-16 text-white animate-on-scroll">Luxury Categories</h2>
           
           <div className="categories-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mt-12">
-            {[
-              { title: "Exotic Destinations", count: "15,000+" },
-              { title: "Luxury Hotels & Resorts", count: "12,000+" },
-              { title: "Private Jets & Yachts", count: "8,500+" },
-              { title: "Fine Dining", count: "10,000+" },
-              { title: "Luxury Cars", count: "9,200+" },
-              { title: "Fashion & Jewelry", count: "11,500+" },
-              { title: "Wellness & Spa", count: "7,800+" },
-              { title: "Architecture & Design", count: "13,000+" },
-              { title: "Events & Galas", count: "6,500+" },
-              { title: "Adventure & Sports", count: "8,900+" },
-              { title: "Art & Culture", count: "9,600+" },
-              { title: "Lifestyle & Beauty", count: "12,800+" },
-              { title: "Fitness & Gym", count: "8,400+" },
-              { title: "Premium Lifestyle", count: "9,200+" }
-            ].map((category, index) => (
-              <div 
-                key={index} 
-                className="category-card bg-gradient-to-r from-[#2d2d2d] to-[#1a1a1a] p-6 rounded-xl text-center transition-all hover:-translate-y-1 hover:border-[#ffd700] border border-[rgba(255,215,0,0.2)] relative overflow-hidden animate-on-scroll"
-              >
+            {[{
+            title: "Exotic Destinations",
+            count: "15,000+"
+          }, {
+            title: "Luxury Hotels & Resorts",
+            count: "12,000+"
+          }, {
+            title: "Private Jets & Yachts",
+            count: "8,500+"
+          }, {
+            title: "Fine Dining",
+            count: "10,000+"
+          }, {
+            title: "Luxury Cars",
+            count: "9,200+"
+          }, {
+            title: "Fashion & Jewelry",
+            count: "11,500+"
+          }, {
+            title: "Wellness & Spa",
+            count: "7,800+"
+          }, {
+            title: "Architecture & Design",
+            count: "13,000+"
+          }, {
+            title: "Events & Galas",
+            count: "6,500+"
+          }, {
+            title: "Adventure & Sports",
+            count: "8,900+"
+          }, {
+            title: "Art & Culture",
+            count: "9,600+"
+          }, {
+            title: "Lifestyle & Beauty",
+            count: "12,800+"
+          }, {
+            title: "Fitness & Gym",
+            count: "8,400+"
+          }, {
+            title: "Premium Lifestyle",
+            count: "9,200+"
+          }].map((category, index) => <div key={index} className="category-card bg-gradient-to-r from-[#2d2d2d] to-[#1a1a1a] p-6 rounded-xl text-center transition-all hover:-translate-y-1 hover:border-[#ffd700] border border-[rgba(255,215,0,0.2)] relative overflow-hidden animate-on-scroll">
                 <h3 className="text-xl font-bold mb-2 text-[#ffd700]">{category.title}</h3>
                 <p className="category-count opacity-80">{category.count} Videos</p>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </section>
@@ -437,30 +405,52 @@ const Index = () => {
           <h2 className="section-title text-4xl md:text-5xl text-center font-bold mb-16 text-white animate-on-scroll">Luxury Categories</h2>
           
           <div className="categories-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mt-12">
-            {[
-              { title: "Exotic Destinations", count: "15,000+" },
-              { title: "Luxury Hotels & Resorts", count: "12,000+" },
-              { title: "Private Jets & Yachts", count: "8,500+" },
-              { title: "Fine Dining", count: "10,000+" },
-              { title: "Luxury Cars", count: "9,200+" },
-              { title: "Fashion & Jewelry", count: "11,500+" },
-              { title: "Wellness & Spa", count: "7,800+" },
-              { title: "Architecture & Design", count: "13,000+" },
-              { title: "Events & Galas", count: "6,500+" },
-              { title: "Adventure & Sports", count: "8,900+" },
-              { title: "Art & Culture", count: "9,600+" },
-              { title: "Lifestyle & Beauty", count: "12,800+" },
-              { title: "Fitness & Gym", count: "8,400+" },
-              { title: "Premium Lifestyle", count: "9,200+" }
-            ].map((category, index) => (
-              <div 
-                key={index} 
-                className="category-card bg-gradient-to-r from-[#2d2d2d] to-[#1a1a1a] p-6 rounded-xl text-center transition-all hover:-translate-y-1 hover:border-[#ffd700] border border-[rgba(255,215,0,0.2)] relative overflow-hidden animate-on-scroll"
-              >
+            {[{
+            title: "Exotic Destinations",
+            count: "15,000+"
+          }, {
+            title: "Luxury Hotels & Resorts",
+            count: "12,000+"
+          }, {
+            title: "Private Jets & Yachts",
+            count: "8,500+"
+          }, {
+            title: "Fine Dining",
+            count: "10,000+"
+          }, {
+            title: "Luxury Cars",
+            count: "9,200+"
+          }, {
+            title: "Fashion & Jewelry",
+            count: "11,500+"
+          }, {
+            title: "Wellness & Spa",
+            count: "7,800+"
+          }, {
+            title: "Architecture & Design",
+            count: "13,000+"
+          }, {
+            title: "Events & Galas",
+            count: "6,500+"
+          }, {
+            title: "Adventure & Sports",
+            count: "8,900+"
+          }, {
+            title: "Art & Culture",
+            count: "9,600+"
+          }, {
+            title: "Lifestyle & Beauty",
+            count: "12,800+"
+          }, {
+            title: "Fitness & Gym",
+            count: "8,400+"
+          }, {
+            title: "Premium Lifestyle",
+            count: "9,200+"
+          }].map((category, index) => <div key={index} className="category-card bg-gradient-to-r from-[#2d2d2d] to-[#1a1a1a] p-6 rounded-xl text-center transition-all hover:-translate-y-1 hover:border-[#ffd700] border border-[rgba(255,215,0,0.2)] relative overflow-hidden animate-on-scroll">
                 <h3 className="text-xl font-bold mb-2 text-[#ffd700]">{category.title}</h3>
                 <p className="category-count opacity-80">{category.count} Videos</p>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </section>
@@ -485,10 +475,7 @@ const Index = () => {
                 <li className="py-2 text-gray-600 before:content-['✓'] before:text-[#ffd700] before:font-bold before:mr-2">No monthly fees ever</li>
               </ul>
               
-              <button
-                onClick={handleCheckout}
-                className="w-full block text-xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-10 py-4 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)]"
-              >
+              <button onClick={handleCheckout} className="w-full block text-xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-10 py-4 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)]">
                 Get Instant Access - $19.99
               </button>
               
@@ -508,11 +495,7 @@ const Index = () => {
               
               <div className="my-6">
                 <p className="text-[#e74c3c] font-bold mb-2">⏰ Offer expires in:</p>
-                <div 
-                  id="countdown-timer" 
-                  ref={countdownTimerRef} 
-                  className="flex justify-center gap-4 font-mono"
-                >
+                <div id="countdown-timer" ref={countdownTimerRef} className="flex justify-center gap-4 font-mono">
                   <div className="bg-[#1a1a1a] text-[#ffd700] px-4 py-2 rounded-lg min-w-[60px]">
                     <div id="hours" className="text-2xl font-bold">23</div>
                     <div className="text-xs">HOURS</div>
@@ -562,7 +545,8 @@ const Index = () => {
             
             <div className="footer-section">
               <h3 className="text-xl font-bold text-[#ffd700] mb-4">Connect</h3>
-              <a href="#" className="block mb-2 text-gray-300 hover:text-[#ffd700]">support@luxevision.com</a>
+              <a href="#" className="block mb-2 text-gray-300 hover:text-[#ffd700]">support@luxevisionshop
+.com</a>
               <a href="#" className="block mb-2 text-gray-300 hover:text-[#ffd700]">+1 (555) 123-4567</a>
               <a href="#" className="block mb-2 text-gray-300 hover:text-[#ffd700]">Follow Us</a>
             </div>
@@ -573,8 +557,6 @@ const Index = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;

@@ -2,15 +2,24 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { trackInitiateCheckout, trackViewContent } from "@/utils/metaPixel";
 
 const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const countdownTimerRef = useRef<HTMLDivElement>(null);
 
-  // Function to handle Stripe checkout
+  // Function to handle Stripe checkout with Meta Pixel tracking
   const handleCheckout = () => {
+    // Track checkout initiation
+    trackInitiateCheckout(19.99, 'USD');
+    
     window.open("https://buy.stripe.com/aFa9ASgRq8E803b4RX2kw00", "_blank");
   };
+
+  // Track page view on component mount
+  useEffect(() => {
+    trackViewContent('LuxeVision Home Page', 'Premium Video Collection');
+  }, []);
 
   // Function to handle scroll animations
   useEffect(() => {

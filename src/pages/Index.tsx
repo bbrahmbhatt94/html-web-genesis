@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
@@ -246,14 +245,14 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="video-showcase bg-gradient-to-r from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a] text-white py-24" id="showcase">
-        <div className="container mx-auto px-5">
-          <h2 className="section-title text-4xl md:text-5xl text-center font-bold mb-6 text-white animate-on-scroll">Experience Premium Quality</h2>
-          <p className="text-center text-xl text-gray-300 mb-12 max-w-3xl mx-auto animate-on-scroll">
+      <section className="video-showcase bg-gradient-to-r from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a] text-white py-12 md:py-24" id="showcase">
+        <div className="container mx-auto px-4 md:px-5">
+          <h2 className="section-title text-3xl md:text-4xl lg:text-5xl text-center font-bold mb-4 md:mb-6 text-white animate-on-scroll">Experience Premium Quality</h2>
+          <p className="text-center text-lg md:text-xl text-gray-300 mb-8 md:mb-12 max-w-3xl mx-auto animate-on-scroll px-4">
             See the stunning 4K quality that sets LuxeVision apart
           </p>
             
-          <div className="reels-container">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto">
             {[
               {
                 poster: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=250&h=350&fit=crop&crop=center",
@@ -272,31 +271,34 @@ const Index = () => {
                 source: "fine-dining.mp4"
               }
             ].map((video, index) => (
-              <div key={index} className="reel-card animate-on-scroll">
-                <div className="video-container">
+              <div key={index} className="w-full animate-on-scroll">
+                <div className="relative aspect-[9/16] w-full max-w-[300px] mx-auto bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-[#ffd700]">
                   <video 
                     poster={video.poster}
                     controls 
                     preload="metadata"
                     className="w-full h-full object-cover"
-                    playsInline>
+                    playsInline
+                    controlsList="nodownload">
                     <source src={video.source} type="video/mp4" />
                     <p>Your browser doesn't support video playback.</p>
                   </video>
-                  <div className="video-overlay absolute inset-0 flex items-center justify-center cursor-pointer transition-opacity hover:bg-opacity-30">
-                    <div className="play-button">▶</div>
+                  <div className="video-overlay absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center cursor-pointer transition-opacity hover:bg-opacity-20">
+                    <div className="w-16 h-16 bg-white bg-opacity-90 rounded-full flex items-center justify-center">
+                      <div className="w-0 h-0 border-l-[12px] border-l-black border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent ml-1"></div>
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
           </div>
             
-          <div className="text-center mt-10">
+          <div className="text-center mt-8 md:mt-10 px-4">
             <a 
               href="#pricing" 
-              className="text-xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-10 py-4 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)]"
+              className="inline-block text-lg md:text-xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-6 md:px-10 py-3 md:py-4 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)]"
             >
-              Access All 120,000+ Videos
+              Access All Videos
             </a>
           </div>
         </div>

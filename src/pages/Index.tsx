@@ -545,8 +545,7 @@ const Index = () => {
             
             <div className="footer-section">
               <h3 className="text-xl font-bold text-[#ffd700] mb-4">Connect</h3>
-              <a href="#" className="block mb-2 text-gray-300 hover:text-[#ffd700]">support@luxevisionshop
-.com</a>
+              <a href="#" className="block mb-2 text-gray-300 hover:text-[#ffd700]">support@luxevisionshop.com</a>
               <a href="#" className="block mb-2 text-gray-300 hover:text-[#ffd700]">+1 (555) 123-4567</a>
               <a href="#" className="block mb-2 text-gray-300 hover:text-[#ffd700]">Follow Us</a>
             </div>

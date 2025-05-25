@@ -304,6 +304,81 @@ const Index = () => {
         </div>
       </section>
 
+      <section className="cta-urgency bg-gradient-to-r from-[#e74c3c] to-[#c0392b] text-white py-16 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+        <div className="container mx-auto px-4 md:px-5 relative z-10">
+          <div className="text-center max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 animate-on-scroll">
+              ⚡ Limited Time Offer Expires Soon! ⚡
+            </h2>
+            <p className="text-xl md:text-2xl mb-6 opacity-90 animate-on-scroll">
+              Don't miss out on 90% OFF our premium collection
+            </p>
+            <div className="bg-black bg-opacity-30 rounded-2xl p-6 mb-8 animate-on-scroll">
+              <p className="text-lg md:text-xl mb-4">
+                <span className="text-[#ffd700] font-bold">Only 47 spots left</span> at this exclusive price!
+              </p>
+              <div className="flex flex-wrap justify-center gap-4 text-sm md:text-base">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 bg-[#ffd700] rounded-full animate-pulse"></span>
+                  <span>120,000+ Premium Videos</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 bg-[#ffd700] rounded-full animate-pulse"></span>
+                  <span>4K HD Quality</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 bg-[#ffd700] rounded-full animate-pulse"></span>
+                  <span>Lifetime Access</span>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={handleCheckout}
+              className="text-xl md:text-2xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-8 md:px-12 py-4 md:py-5 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(255,215,0,0.4)] animate-pulse"
+            >
+              Claim Your 90% Discount Now - $19.99
+            </button>
+            <p className="text-sm md:text-base mt-4 opacity-80">
+              🔥 Price increases to $199.99 after this promotion ends
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="categories bg-[#1a1a1a] text-white py-24" id="categories">
+        <div className="container mx-auto px-5">
+          <h2 className="section-title text-4xl md:text-5xl text-center font-bold mb-16 text-white animate-on-scroll">Luxury Categories</h2>
+          
+          <div className="categories-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mt-12">
+            {[
+              { title: "Exotic Destinations", count: "15,000+" },
+              { title: "Luxury Hotels & Resorts", count: "12,000+" },
+              { title: "Private Jets & Yachts", count: "8,500+" },
+              { title: "Fine Dining", count: "10,000+" },
+              { title: "Luxury Cars", count: "9,200+" },
+              { title: "Fashion & Jewelry", count: "11,500+" },
+              { title: "Wellness & Spa", count: "7,800+" },
+              { title: "Architecture & Design", count: "13,000+" },
+              { title: "Events & Galas", count: "6,500+" },
+              { title: "Adventure & Sports", count: "8,900+" },
+              { title: "Art & Culture", count: "9,600+" },
+              { title: "Lifestyle & Beauty", count: "12,800+" },
+              { title: "Fitness & Gym", count: "8,400+" },
+              { title: "Premium Lifestyle", count: "9,200+" }
+            ].map((category, index) => (
+              <div 
+                key={index} 
+                className="category-card bg-gradient-to-r from-[#2d2d2d] to-[#1a1a1a] p-6 rounded-xl text-center transition-all hover:-translate-y-1 hover:border-[#ffd700] border border-[rgba(255,215,0,0.2)] relative overflow-hidden animate-on-scroll"
+              >
+                <h3 className="text-xl font-bold mb-2 text-[#ffd700]">{category.title}</h3>
+                <p className="category-count opacity-80">{category.count} Videos</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="features bg-gradient-to-r from-[#f8f9fa] to-[#e9ecef] py-24" id="about">
         <div className="container mx-auto px-5">
           <h2 className="section-title text-4xl md:text-5xl text-center font-bold mb-16 text-[#1a1a1a] animate-on-scroll">Why Choose LuxeVision?</h2>

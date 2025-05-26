@@ -3,16 +3,52 @@ import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trackInitiateCheckout, trackViewContent } from "@/utils/metaPixel";
+import { createClient } from "@supabase/supabase-js";
 
 const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const countdownTimerRef = useRef<HTMLDivElement>(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
-  // Function to handle Stripe checkout with Meta Pixel tracking
-  const handleCheckout = () => {
-    // Track checkout initiation
-    trackInitiateCheckout(19.99, 'USD');
-    window.open("https://buy.stripe.com/aFa9ASgRq8E803b4RX2kw00", "_blank");
+  // Initialize Supabase client (you'll need to set up your Supabase project)
+  const supabase = createClient(
+    // You'll need to replace these with your actual Supabase URL and anon key
+    import.meta.env.VITE_SUPABASE_URL || '',
+    import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+  );
+
+  // Function to handle Stripe checkout with direct integration
+  const handleCheckout = async () => {
+    setIsProcessingPayment(true);
+    try {
+      // Track checkout initiation
+      trackInitiateCheckout(19.99, 'USD');
+      
+      // Call Stripe edge function (you'll need to create this)
+      const { data, error } = await supabase.functions.invoke('create-payment', {
+        body: {
+          amount: 1999, // $19.99 in cents
+          currency: 'usd',
+          productName: 'LuxeVision Premium Collection'
+        }
+      });
+
+      if (error) {
+        console.error('Payment error:', error);
+        alert('Payment failed. Please try again.');
+        return;
+      }
+
+      if (data?.url) {
+        // Redirect to Stripe checkout
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert('Something went wrong. Please try again.');
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
 
   // Track page view on component mount
@@ -134,49 +170,45 @@ const Index = () => {
     };
   }, []);
 
-  // Handle video overlay clicks and debug video loading
+  // Handle autoplay videos when they come into view
   useEffect(() => {
-    const videoOverlays = document.querySelectorAll('.video-overlay');
-    videoOverlays.forEach(overlay => {
-      overlay.addEventListener('click', () => {
-        const container = overlay.closest('.video-container');
-        if (container) {
-          const video = container.querySelector('video');
-          if (video) {
-            console.log('Playing video:', video.src);
-            video.play();
-            overlay.classList.add('hidden');
-
-            // Show overlay again when video pauses or ends
-            video.addEventListener('pause', () => {
-              overlay.classList.remove('hidden');
-            });
-            video.addEventListener('ended', () => {
-              overlay.classList.remove('hidden');
-            });
-          }
+    const videoObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        const video = entry.target as HTMLVideoElement;
+        if (entry.isIntersecting) {
+          video.play().catch(e => {
+            console.log('Autoplay prevented:', e);
+            // Autoplay was prevented, user interaction required
+          });
+        } else {
+          video.pause();
         }
       });
-    });
+    }, { threshold: 0.5 });
 
-    // Debug video loading
+    // Observe all videos
     const videos = document.querySelectorAll('video');
-    videos.forEach((video, index) => {
-      console.log(`Video ${index + 1} src:`, video.src);
+    videos.forEach(video => {
+      videoObserver.observe(video);
       
+      // Add event listeners for debugging
       video.addEventListener('loadstart', () => {
-        console.log(`Video ${index + 1} started loading`);
+        console.log(`Video ${video.src} started loading`);
       });
       
       video.addEventListener('loadeddata', () => {
-        console.log(`Video ${index + 1} loaded successfully`);
+        console.log(`Video ${video.src} loaded successfully`);
       });
       
       video.addEventListener('error', (e) => {
-        console.error(`Video ${index + 1} failed to load:`, e);
+        console.error(`Video ${video.src} failed to load:`, e);
         console.error('Video error details:', video.error);
       });
     });
+
+    return () => {
+      videoObserver.disconnect();
+    };
   }, []);
 
   return <div className="min-h-screen overflow-x-hidden">
@@ -196,8 +228,12 @@ const Index = () => {
             {mobileMenuOpen ? <X /> : <Menu />}
           </button>
           
-          <button onClick={handleCheckout} className="hidden md:inline-block bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-6 py-3 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)]">
-            Get Offer Now
+          <button 
+            onClick={handleCheckout} 
+            disabled={isProcessingPayment}
+            className="hidden md:inline-block bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-6 py-3 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isProcessingPayment ? 'Processing...' : 'Get Offer Now'}
           </button>
           
           <div id="mobile-menu" className={`absolute top-full left-0 right-0 bg-[rgba(26,26,26,0.95)] backdrop-blur-lg border-t border-[rgba(255,215,0,0.3)] p-4 ${mobileMenuOpen ? 'block' : 'hidden'} md:hidden`}>
@@ -206,8 +242,12 @@ const Index = () => {
             <a href="#pricing" className="block text-white py-4 border-b border-[rgba(255,255,255,0.1)] hover:text-[#ffd700]">Pricing</a>
             <a href="#about" className="block text-white py-4 border-b border-[rgba(255,255,255,0.1)] hover:text-[#ffd700]">About</a>
             <a href="#contact" className="block text-white py-4 border-b border-[rgba(255,255,255,0.1)] hover:text-[#ffd700]">Contact</a>
-            <button onClick={handleCheckout} className="mt-4 block w-full text-center bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] py-3 px-6 rounded-full font-bold">
-              Get Offer Now
+            <button 
+              onClick={handleCheckout} 
+              disabled={isProcessingPayment}
+              className="mt-4 block w-full text-center bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] py-3 px-6 rounded-full font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isProcessingPayment ? 'Processing...' : 'Get Offer Now'}
             </button>
           </div>
         </nav>
@@ -250,26 +290,22 @@ const Index = () => {
             
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto">
             {[{
-            poster: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=250&h=350&fit=crop&crop=center",
             source: "/home-2.mp4"
           }, {
-            poster: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=250&h=350&fit=crop&crop=center",
             source: "/home-3.mp4"
           }, {
-            poster: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=250&h=350&fit=crop&crop=center",
             source: "/home-4.mp4"
           }, {
-            poster: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=250&h=350&fit=crop&crop=center",
             source: "/home-5.mp4"
           }].map((video, index) => <div key={index} className="w-full animate-on-scroll">
-                <div className="relative aspect-[9/16] w-full max-w-[300px] mx-auto bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-[#ffd700] video-container">
+                <div className="relative aspect-[9/16] w-full max-w-[300px] mx-auto bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-[#ffd700]">
                   <video 
-                    poster={video.poster} 
-                    controls 
-                    preload="metadata" 
-                    className="w-full h-full object-cover" 
-                    playsInline 
-                    controlsList="nodownload"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    className="w-full h-full object-cover"
                     onLoadStart={() => console.log(`Video ${index + 1} (${video.source}) load started`)}
                     onLoadedData={() => console.log(`Video ${index + 1} (${video.source}) loaded successfully`)}
                     onError={(e) => {
@@ -280,11 +316,6 @@ const Index = () => {
                     <source src={video.source} type="video/mp4" />
                     <p>Your browser doesn't support video playback.</p>
                   </video>
-                  <div className="video-overlay absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center cursor-pointer transition-opacity hover:bg-opacity-20">
-                    <div className="w-16 h-16 bg-white bg-opacity-90 rounded-full flex items-center justify-center">
-                      <div className="w-0 h-0 border-l-[12px] border-l-black border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent ml-1"></div>
-                    </div>
-                  </div>
                 </div>
               </div>)}
           </div>
@@ -326,8 +357,12 @@ const Index = () => {
                 </div>
               </div>
             </div>
-            <button onClick={handleCheckout} className="text-xl md:text-2xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-8 md:px-12 py-4 md:py-5 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(255,215,0,0.4)] animate-pulse">
-              Claim Your 90% Discount Now - $19.99
+            <button 
+              onClick={handleCheckout} 
+              disabled={isProcessingPayment}
+              className="text-xl md:text-2xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-8 md:px-12 py-4 md:py-5 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(255,215,0,0.4)] animate-pulse disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isProcessingPayment ? 'Processing...' : 'Claim Your 90% Discount Now - $19.99'}
             </button>
             <p className="text-sm md:text-base mt-4 opacity-80">
               🔥 Price increases to $199.99 after this promotion ends
@@ -510,8 +545,12 @@ const Index = () => {
                 <li className="py-2 text-gray-600 before:content-['✓'] before:text-[#ffd700] before:font-bold before:mr-2">No monthly fees ever</li>
               </ul>
               
-              <button onClick={handleCheckout} className="w-full block text-xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-10 py-4 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)]">
-                Get Instant Access - $19.99
+              <button 
+                onClick={handleCheckout} 
+                disabled={isProcessingPayment}
+                className="w-full block text-xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-10 py-4 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isProcessingPayment ? 'Processing...' : 'Get Instant Access - $19.99'}
               </button>
               
               <p className="text-sm text-gray-600 mt-4">🔒 Secure payment processing available</p>

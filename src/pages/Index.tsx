@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trackInitiateCheckout, trackViewContent } from "@/utils/metaPixel";
+
 const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const countdownTimerRef = useRef<HTMLDivElement>(null);
@@ -229,16 +230,16 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto">
             {[{
             poster: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=250&h=350&fit=crop&crop=center",
-            source: "home-2.mp4"
+            source: "/home-2.mp4"
           }, {
             poster: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=250&h=350&fit=crop&crop=center",
-            source: "home-3.mp4"
+            source: "/home-3.mp4"
           }, {
             poster: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=250&h=350&fit=crop&crop=center",
-            source: "home-4.mp4"
+            source: "/home-4.mp4"
           }, {
             poster: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=250&h=350&fit=crop&crop=center",
-            source: "home-5.mp4"
+            source: "/home-5.mp4"
           }].map((video, index) => <div key={index} className="w-full animate-on-scroll">
                 <div className="relative aspect-[9/16] w-full max-w-[300px] mx-auto bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-[#ffd700]">
                   <video poster={video.poster} controls preload="metadata" className="w-full h-full object-cover" playsInline controlsList="nodownload">

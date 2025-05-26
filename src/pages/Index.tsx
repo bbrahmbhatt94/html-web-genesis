@@ -134,7 +134,7 @@ const Index = () => {
     };
   }, []);
 
-  // Handle video overlay clicks
+  // Handle video overlay clicks and debug video loading
   useEffect(() => {
     const videoOverlays = document.querySelectorAll('.video-overlay');
     videoOverlays.forEach(overlay => {
@@ -143,6 +143,7 @@ const Index = () => {
         if (container) {
           const video = container.querySelector('video');
           if (video) {
+            console.log('Playing video:', video.src);
             video.play();
             overlay.classList.add('hidden');
 
@@ -157,7 +158,27 @@ const Index = () => {
         }
       });
     });
+
+    // Debug video loading
+    const videos = document.querySelectorAll('video');
+    videos.forEach((video, index) => {
+      console.log(`Video ${index + 1} src:`, video.src);
+      
+      video.addEventListener('loadstart', () => {
+        console.log(`Video ${index + 1} started loading`);
+      });
+      
+      video.addEventListener('loadeddata', () => {
+        console.log(`Video ${index + 1} loaded successfully`);
+      });
+      
+      video.addEventListener('error', (e) => {
+        console.error(`Video ${index + 1} failed to load:`, e);
+        console.error('Video error details:', video.error);
+      });
+    });
   }, []);
+
   return <div className="min-h-screen overflow-x-hidden">
       <header className="fixed w-full top-0 z-50 bg-gradient-to-r from-[#1a1a1a] to-[#2d2d2d] text-white py-4 backdrop-blur-lg">
         <nav className="container mx-auto px-5 flex justify-between items-center">
@@ -241,8 +262,21 @@ const Index = () => {
             poster: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=250&h=350&fit=crop&crop=center",
             source: "/home-5.mp4"
           }].map((video, index) => <div key={index} className="w-full animate-on-scroll">
-                <div className="relative aspect-[9/16] w-full max-w-[300px] mx-auto bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-[#ffd700]">
-                  <video poster={video.poster} controls preload="metadata" className="w-full h-full object-cover" playsInline controlsList="nodownload">
+                <div className="relative aspect-[9/16] w-full max-w-[300px] mx-auto bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-[#ffd700] video-container">
+                  <video 
+                    poster={video.poster} 
+                    controls 
+                    preload="metadata" 
+                    className="w-full h-full object-cover" 
+                    playsInline 
+                    controlsList="nodownload"
+                    onLoadStart={() => console.log(`Video ${index + 1} (${video.source}) load started`)}
+                    onLoadedData={() => console.log(`Video ${index + 1} (${video.source}) loaded successfully`)}
+                    onError={(e) => {
+                      console.error(`Video ${index + 1} (${video.source}) failed to load:`, e);
+                      console.error('Error details:', e.currentTarget.error);
+                    }}
+                  >
                     <source src={video.source} type="video/mp4" />
                     <p>Your browser doesn't support video playback.</p>
                   </video>

@@ -4,7 +4,6 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trackInitiateCheckout, trackViewContent } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
-
 const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const countdownTimerRef = useRef<HTMLDivElement>(null);
@@ -16,24 +15,25 @@ const Index = () => {
     try {
       // Track checkout initiation
       trackInitiateCheckout(19.99, 'USD');
-      
       console.log("Calling create-payment function...");
-      
+
       // Call Stripe edge function
-      const { data, error } = await supabase.functions.invoke('create-payment', {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('create-payment', {
         body: {
-          amount: 1999, // $19.99 in cents
+          amount: 1999,
+          // $19.99 in cents
           currency: 'usd',
           productName: 'LuxeVision Premium Collection'
         }
       });
-
       if (error) {
         console.error('Payment error:', error);
         alert('Payment failed. Please try again.');
         return;
       }
-
       if (data?.url) {
         // Redirect to Stripe checkout
         window.location.href = data.url;
@@ -179,33 +179,31 @@ const Index = () => {
           video.pause();
         }
       });
-    }, { threshold: 0.5 });
+    }, {
+      threshold: 0.5
+    });
 
     // Observe all videos
     const videos = document.querySelectorAll('video');
     videos.forEach(video => {
       videoObserver.observe(video);
-      
+
       // Add event listeners for debugging
       video.addEventListener('loadstart', () => {
         console.log(`Video ${video.src} started loading`);
       });
-      
       video.addEventListener('loadeddata', () => {
         console.log(`Video ${video.src} loaded successfully`);
       });
-      
-      video.addEventListener('error', (e) => {
+      video.addEventListener('error', e => {
         console.error(`Video ${video.src} failed to load:`, e);
         console.error('Video error details:', video.error);
       });
     });
-
     return () => {
       videoObserver.disconnect();
     };
   }, []);
-
   return <div className="min-h-screen overflow-x-hidden">
       <header className="fixed w-full top-0 z-50 bg-gradient-to-r from-[#1a1a1a] to-[#2d2d2d] text-white py-4 backdrop-blur-lg">
         <nav className="container mx-auto px-5 flex justify-between items-center">
@@ -223,11 +221,7 @@ const Index = () => {
             {mobileMenuOpen ? <X /> : <Menu />}
           </button>
           
-          <button 
-            onClick={handleCheckout} 
-            disabled={isProcessingPayment}
-            className="hidden md:inline-block bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-6 py-3 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <button onClick={handleCheckout} disabled={isProcessingPayment} className="hidden md:inline-block bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-6 py-3 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed">
             {isProcessingPayment ? 'Processing...' : 'Get Offer Now'}
           </button>
           
@@ -237,11 +231,7 @@ const Index = () => {
             <a href="#pricing" className="block text-white py-4 border-b border-[rgba(255,255,255,0.1)] hover:text-[#ffd700]">Pricing</a>
             <a href="#about" className="block text-white py-4 border-b border-[rgba(255,255,255,0.1)] hover:text-[#ffd700]">About</a>
             <a href="#contact" className="block text-white py-4 border-b border-[rgba(255,255,255,0.1)] hover:text-[#ffd700]">Contact</a>
-            <button 
-              onClick={handleCheckout} 
-              disabled={isProcessingPayment}
-              className="mt-4 block w-full text-center bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] py-3 px-6 rounded-full font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <button onClick={handleCheckout} disabled={isProcessingPayment} className="mt-4 block w-full text-center bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] py-3 px-6 rounded-full font-bold disabled:opacity-50 disabled:cursor-not-allowed">
               {isProcessingPayment ? 'Processing...' : 'Get Offer Now'}
             </button>
           </div>
@@ -294,20 +284,10 @@ const Index = () => {
             source: "/home-5.mp4"
           }].map((video, index) => <div key={index} className="w-full animate-on-scroll">
                 <div className="relative aspect-[9/16] w-full max-w-[300px] mx-auto bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-[#ffd700]">
-                  <video 
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="metadata"
-                    className="w-full h-full object-cover"
-                    onLoadStart={() => console.log(`Video ${index + 1} (${video.source}) load started`)}
-                    onLoadedData={() => console.log(`Video ${index + 1} (${video.source}) loaded successfully`)}
-                    onError={(e) => {
-                      console.error(`Video ${index + 1} (${video.source}) failed to load:`, e);
-                      console.error('Error details:', e.currentTarget.error);
-                    }}
-                  >
+                  <video autoPlay muted loop playsInline preload="metadata" className="w-full h-full object-cover" onLoadStart={() => console.log(`Video ${index + 1} (${video.source}) load started`)} onLoadedData={() => console.log(`Video ${index + 1} (${video.source}) loaded successfully`)} onError={e => {
+                console.error(`Video ${index + 1} (${video.source}) failed to load:`, e);
+                console.error('Error details:', e.currentTarget.error);
+              }}>
                     <source src={video.source} type="video/mp4" />
                     <p>Your browser doesn't support video playback.</p>
                   </video>
@@ -352,11 +332,7 @@ const Index = () => {
                 </div>
               </div>
             </div>
-            <button 
-              onClick={handleCheckout} 
-              disabled={isProcessingPayment}
-              className="text-xl md:text-2xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-8 md:px-12 py-4 md:py-5 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(255,215,0,0.4)] animate-pulse disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <button onClick={handleCheckout} disabled={isProcessingPayment} className="text-xl md:text-2xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-8 md:px-12 py-4 md:py-5 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(255,215,0,0.4)] animate-pulse disabled:opacity-50 disabled:cursor-not-allowed">
               {isProcessingPayment ? 'Processing...' : 'Claim Your 90% Discount Now - $19.99'}
             </button>
             <p className="text-sm md:text-base mt-4 opacity-80">
@@ -366,60 +342,7 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="categories bg-[#1a1a1a] text-white py-24" id="categories">
-        <div className="container mx-auto px-5">
-          <h2 className="section-title text-4xl md:text-5xl text-center font-bold mb-16 text-white animate-on-scroll">Luxury Categories</h2>
-          
-          <div className="categories-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mt-12">
-            {[{
-            title: "Exotic Destinations",
-            count: "15,000+"
-          }, {
-            title: "Luxury Hotels & Resorts",
-            count: "12,000+"
-          }, {
-            title: "Private Jets & Yachts",
-            count: "8,500+"
-          }, {
-            title: "Fine Dining",
-            count: "10,000+"
-          }, {
-            title: "Luxury Cars",
-            count: "9,200+"
-          }, {
-            title: "Fashion & Jewelry",
-            count: "11,500+"
-          }, {
-            title: "Wellness & Spa",
-            count: "7,800+"
-          }, {
-            title: "Architecture & Design",
-            count: "13,000+"
-          }, {
-            title: "Events & Galas",
-            count: "6,500+"
-          }, {
-            title: "Adventure & Sports",
-            count: "8,900+"
-          }, {
-            title: "Art & Culture",
-            count: "9,600+"
-          }, {
-            title: "Lifestyle & Beauty",
-            count: "12,800+"
-          }, {
-            title: "Fitness & Gym",
-            count: "8,400+"
-          }, {
-            title: "Premium Lifestyle",
-            count: "9,200+"
-          }].map((category, index) => <div key={index} className="category-card bg-gradient-to-r from-[#2d2d2d] to-[#1a1a1a] p-6 rounded-xl text-center transition-all hover:-translate-y-1 hover:border-[#ffd700] border border-[rgba(255,215,0,0.2)] relative overflow-hidden animate-on-scroll">
-                <h3 className="text-xl font-bold mb-2 text-[#ffd700]">{category.title}</h3>
-                <p className="category-count opacity-80">{category.count} Videos</p>
-              </div>)}
-          </div>
-        </div>
-      </section>
+      
 
       <section className="features bg-gradient-to-r from-[#f8f9fa] to-[#e9ecef] py-24" id="about">
         <div className="container mx-auto px-5">
@@ -540,11 +463,7 @@ const Index = () => {
                 <li className="py-2 text-gray-600 before:content-['✓'] before:text-[#ffd700] before:font-bold before:mr-2">No monthly fees ever</li>
               </ul>
               
-              <button 
-                onClick={handleCheckout} 
-                disabled={isProcessingPayment}
-                className="w-full block text-xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-10 py-4 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+              <button onClick={handleCheckout} disabled={isProcessingPayment} className="w-full block text-xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-10 py-4 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed">
                 {isProcessingPayment ? 'Processing...' : 'Get Instant Access - $19.99'}
               </button>
               

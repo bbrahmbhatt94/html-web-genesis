@@ -3,19 +3,12 @@ import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trackInitiateCheckout, trackViewContent } from "@/utils/metaPixel";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const countdownTimerRef = useRef<HTMLDivElement>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-
-  // Initialize Supabase client (you'll need to set up your Supabase project)
-  const supabase = createClient(
-    // You'll need to replace these with your actual Supabase URL and anon key
-    import.meta.env.VITE_SUPABASE_URL || '',
-    import.meta.env.VITE_SUPABASE_ANON_KEY || ''
-  );
 
   // Function to handle Stripe checkout with direct integration
   const handleCheckout = async () => {
@@ -24,7 +17,9 @@ const Index = () => {
       // Track checkout initiation
       trackInitiateCheckout(19.99, 'USD');
       
-      // Call Stripe edge function (you'll need to create this)
+      console.log("Calling create-payment function...");
+      
+      // Call Stripe edge function
       const { data, error } = await supabase.functions.invoke('create-payment', {
         body: {
           amount: 1999, // $19.99 in cents

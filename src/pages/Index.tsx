@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trackInitiateCheckout, trackViewContent } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
+
 const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const countdownTimerRef = useRef<HTMLDivElement>(null);
@@ -342,8 +343,6 @@ const Index = () => {
         </div>
       </section>
 
-      
-
       <section className="features bg-gradient-to-r from-[#f8f9fa] to-[#e9ecef] py-24" id="about">
         <div className="container mx-auto px-5">
           <h2 className="section-title text-4xl md:text-5xl text-center font-bold mb-16 text-[#1a1a1a] animate-on-scroll">Why Choose LuxeVision?</h2>
@@ -383,6 +382,101 @@ const Index = () => {
               <div className="feature-icon w-20 h-20 bg-gradient-to-r from-[#ffd700] to-[#ffed4e] rounded-full flex items-center justify-center text-3xl mx-auto mb-4">🎯</div>
               <h3 className="text-2xl font-bold mb-4 text-[#1a1a1a]">Commercial License</h3>
               <p className="text-gray-600">Full commercial rights included. Use our luxury videos for your business, marketing campaigns, or creative projects without restrictions.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="perfect-for bg-gradient-to-r from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a] text-white py-24">
+        <div className="container mx-auto px-5">
+          <h2 className="section-title text-4xl md:text-5xl text-center font-bold mb-6 text-white animate-on-scroll">Perfect For</h2>
+          <p className="text-center text-xl text-gray-300 mb-16 max-w-3xl mx-auto animate-on-scroll">
+            Transform your content strategy with premium luxury videos that captivate and convert
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
+            <div className="target-card bg-gradient-to-br from-[#2d2d2d] to-[#1a1a1a] p-8 rounded-2xl border border-[rgba(255,215,0,0.2)] transition-all hover:-translate-y-2 hover:border-[#ffd700] animate-on-scroll">
+              <div className="text-4xl mb-4">🏡</div>
+              <h3 className="text-2xl font-bold mb-4 text-[#ffd700]">Real Estate Agents</h3>
+              <p className="text-gray-300 mb-4">Showcase luxury properties with stunning lifestyle footage that sells dreams, not just homes.</p>
+              <ul className="text-sm text-gray-400 space-y-2">
+                <li>• High-end property marketing videos</li>
+                <li>• Luxury lifestyle brand positioning</li>
+                <li>• Premium client presentations</li>
+                <li>• Social media content that converts</li>
+              </ul>
+            </div>
+
+            <div className="target-card bg-gradient-to-br from-[#2d2d2d] to-[#1a1a1a] p-8 rounded-2xl border border-[rgba(255,215,0,0.2)] transition-all hover:-translate-y-2 hover:border-[#ffd700] animate-on-scroll">
+              <div className="text-4xl mb-4">📱</div>
+              <h3 className="text-2xl font-bold mb-4 text-[#ffd700]">Instagram Theme Pages</h3>
+              <p className="text-gray-300 mb-4">Build massive followings with premium content that stops the scroll and drives engagement.</p>
+              <ul className="text-sm text-gray-400 space-y-2">
+                <li>• Daily luxury lifestyle posts</li>
+                <li>• Story content that captivates</li>
+                <li>• Reels that go viral</li>
+                <li>• Brand partnership opportunities</li>
+              </ul>
+            </div>
+
+            <div className="target-card bg-gradient-to-br from-[#2d2d2d] to-[#1a1a1a] p-8 rounded-2xl border border-[rgba(255,215,0,0.2)] transition-all hover:-translate-y-2 hover:border-[#ffd700] animate-on-scroll">
+              <div className="text-4xl mb-4">🎭</div>
+              <h3 className="text-2xl font-bold mb-4 text-[#ffd700]">Faceless Content Creators</h3>
+              <p className="text-gray-300 mb-4">Create compelling content without showing your face using our premium B-roll footage.</p>
+              <ul className="text-sm text-gray-400 space-y-2">
+                <li>• YouTube automation channels</li>
+                <li>• TikTok compilation videos</li>
+                <li>• Motivational content creation</li>
+                <li>• Passive income opportunities</li>
+              </ul>
+            </div>
+
+            <div className="target-card bg-gradient-to-br from-[#2d2d2d] to-[#1a1a1a] p-8 rounded-2xl border border-[rgba(255,215,0,0.2)] transition-all hover:-translate-y-2 hover:border-[#ffd700] animate-on-scroll">
+              <div className="text-4xl mb-4">💪</div>
+              <h3 className="text-2xl font-bold mb-4 text-[#ffd700]">Fitness & Gym Owners</h3>
+              <p className="text-gray-300 mb-4">Inspire transformation with luxury fitness content that motivates and attracts premium clients.</p>
+              <ul className="text-sm text-gray-400 space-y-2">
+                <li>• Premium gym marketing videos</li>
+                <li>• Luxury fitness lifestyle content</li>
+                <li>• High-end trainer branding</li>
+                <li>• Motivational social media posts</li>
+              </ul>
+            </div>
+
+            <div className="target-card bg-gradient-to-br from-[#2d2d2d] to-[#1a1a1a] p-8 rounded-2xl border border-[rgba(255,215,0,0.2)] transition-all hover:-translate-y-2 hover:border-[#ffd700] animate-on-scroll">
+              <div className="text-4xl mb-4">✨</div>
+              <h3 className="text-2xl font-bold mb-4 text-[#ffd700]">Luxury Lifestyle Brands</h3>
+              <p className="text-gray-300 mb-4">Elevate your brand with authentic luxury content that resonates with affluent audiences.</p>
+              <ul className="text-sm text-gray-400 space-y-2">
+                <li>• Premium brand storytelling</li>
+                <li>• Luxury product launches</li>
+                <li>• High-end marketing campaigns</li>
+                <li>• Affluent audience targeting</li>
+              </ul>
+            </div>
+
+            <div className="target-card bg-gradient-to-br from-[#2d2d2d] to-[#1a1a1a] p-8 rounded-2xl border border-[rgba(255,215,0,0.2)] transition-all hover:-translate-y-2 hover:border-[#ffd700] animate-on-scroll">
+              <div className="text-4xl mb-4">🎬</div>
+              <h3 className="text-2xl font-bold mb-4 text-[#ffd700]">Digital Marketing Agencies</h3>
+              <p className="text-gray-300 mb-4">Deliver premium results for luxury clients with our exclusive high-end video collection.</p>
+              <ul className="text-sm text-gray-400 space-y-2">
+                <li>• Client campaign materials</li>
+                <li>• Premium ad creatives</li>
+                <li>• Luxury brand consulting</li>
+                <li>• High-ROI content strategies</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="text-center mt-16">
+            <div className="bg-gradient-to-r from-[#2d2d2d] to-[#1a1a1a] p-8 rounded-2xl border border-[rgba(255,215,0,0.2)] max-w-4xl mx-auto">
+              <h3 className="text-2xl font-bold text-[#ffd700] mb-4">Ready to Transform Your Content?</h3>
+              <p className="text-xl text-gray-300 mb-6">
+                Join thousands of successful creators, agencies, and businesses who trust LuxeVision for their premium content needs.
+              </p>
+              <button onClick={handleCheckout} disabled={isProcessingPayment} className="text-xl bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-10 py-4 rounded-full font-bold transition-all hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(255,215,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed">
+                {isProcessingPayment ? 'Processing...' : 'Start Creating Premium Content - $19.99'}
+              </button>
             </div>
           </div>
         </div>
@@ -546,4 +640,5 @@ const Index = () => {
       </footer>
     </div>;
 };
+
 export default Index;

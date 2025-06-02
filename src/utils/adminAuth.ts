@@ -22,8 +22,10 @@ export const loginAdmin = async (email: string, password: string): Promise<Admin
       throw new Error('Invalid credentials');
     }
 
-    // For now, we'll use a simple password check (in production, use proper bcrypt)
-    if (password === 'admin123') { // Temporary simple check
+    // Check password using bcrypt or simple check for demo
+    const isValidPassword = password === 'admin123' || await bcrypt.compare(password, adminUser.password_hash);
+    
+    if (isValidPassword) {
       // Update last login
       await supabase
         .from('admin_users')

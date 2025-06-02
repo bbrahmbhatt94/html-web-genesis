@@ -9,16 +9,187 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      admin_users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          last_login: string | null
+          password_hash: string
+          role: Database["public"]["Enums"]["admin_role"] | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          last_login?: string | null
+          password_hash: string
+          role?: Database["public"]["Enums"]["admin_role"] | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          last_login?: string | null
+          password_hash?: string
+          role?: Database["public"]["Enums"]["admin_role"] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: Database["public"]["Enums"]["analytics_event_type"]
+          id: string
+          ip_address: unknown | null
+          page_url: string
+          session_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: Database["public"]["Enums"]["analytics_event_type"]
+          id?: string
+          ip_address?: unknown | null
+          page_url: string
+          session_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: Database["public"]["Enums"]["analytics_event_type"]
+          id?: string
+          ip_address?: unknown | null
+          page_url?: string
+          session_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      analytics_performance: {
+        Row: {
+          created_at: string
+          cumulative_layout_shift: number | null
+          first_contentful_paint: number | null
+          first_input_delay: number | null
+          id: string
+          largest_contentful_paint: number | null
+          load_time: number
+          page_url: string
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          cumulative_layout_shift?: number | null
+          first_contentful_paint?: number | null
+          first_input_delay?: number | null
+          id?: string
+          largest_contentful_paint?: number | null
+          load_time: number
+          page_url: string
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          cumulative_layout_shift?: number | null
+          first_contentful_paint?: number | null
+          first_input_delay?: number | null
+          id?: string
+          largest_contentful_paint?: number | null
+          load_time?: number
+          page_url?: string
+          session_id?: string
+        }
+        Relationships: []
+      }
+      analytics_sessions: {
+        Row: {
+          browser: string | null
+          conversion_value: number | null
+          converted: boolean | null
+          country: string | null
+          device_type: string | null
+          end_time: string | null
+          id: string
+          page_views: number | null
+          referrer: string | null
+          session_id: string
+          start_time: string
+          total_time_spent: number | null
+          user_id: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          browser?: string | null
+          conversion_value?: number | null
+          converted?: boolean | null
+          country?: string | null
+          device_type?: string | null
+          end_time?: string | null
+          id?: string
+          page_views?: number | null
+          referrer?: string | null
+          session_id: string
+          start_time?: string
+          total_time_spent?: number | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          browser?: string | null
+          conversion_value?: number | null
+          converted?: boolean | null
+          country?: string | null
+          device_type?: string | null
+          end_time?: string | null
+          id?: string
+          page_views?: number | null
+          referrer?: string | null
+          session_id?: string
+          start_time?: string
+          total_time_spent?: number | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: { user_email: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      admin_role: "super_admin" | "admin" | "viewer"
+      analytics_event_type:
+        | "page_view"
+        | "video_play"
+        | "video_pause"
+        | "video_complete"
+        | "scroll_depth"
+        | "button_click"
+        | "section_view"
+        | "timer_interaction"
+        | "menu_toggle"
+        | "conversion"
+        | "checkout_start"
+        | "payment_complete"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +304,22 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      admin_role: ["super_admin", "admin", "viewer"],
+      analytics_event_type: [
+        "page_view",
+        "video_play",
+        "video_pause",
+        "video_complete",
+        "scroll_depth",
+        "button_click",
+        "section_view",
+        "timer_interaction",
+        "menu_toggle",
+        "conversion",
+        "checkout_start",
+        "payment_complete",
+      ],
+    },
   },
 } as const

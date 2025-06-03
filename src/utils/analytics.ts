@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { trackEvent as trackMetaPixelEvent } from "./metaPixel";
+import { sanitizeAnalyticsData } from "./inputValidation";
 
 // Generate unique session ID
 const generateSessionId = (): string => {
@@ -17,7 +18,33 @@ const getSessionId = (): string => {
   return sessionId;
 };
 
-// Track analytics event
+// Rate limiting for analytics events
+const rateLimitMap = new Map<string, number>();
+const RATE_LIMIT_WINDOW = 60000; // 1 minute
+const MAX_EVENTS_PER_WINDOW = 100;
+
+const checkRateLimit = (eventType: string): boolean => {
+  const now = Date.now();
+  const key = `${eventType}-${Math.floor(now / RATE_LIMIT_WINDOW)}`;
+  const count = rateLimitMap.get(key) || 0;
+  
+  if (count >= MAX_EVENTS_PER_WINDOW) {
+    return false;
+  }
+  
+  rateLimitMap.set(key, count + 1);
+  
+  // Cleanup old entries
+  for (const [k, _] of rateLimitMap) {
+    if (parseInt(k.split('-').pop() || '0') < Math.floor(now / RATE_LIMIT_WINDOW) - 5) {
+      rateLimitMap.delete(k);
+    }
+  }
+  
+  return true;
+};
+
+// Track analytics event with security measures
 export const trackAnalyticsEvent = async (
   eventType: string,
   eventData: any = {},
@@ -26,21 +53,43 @@ export const trackAnalyticsEvent = async (
   const sessionId = getSessionId();
   
   try {
+    // Rate limiting
+    if (!checkRateLimit(eventType)) {
+      console.warn('Rate limit exceeded for analytics tracking');
+      return;
+    }
+
+    // Input validation and sanitization
+    const sanitizedEventType = eventType.replace(/[^a-zA-Z0-9_]/g, '');
+    const sanitizedEventData = sanitizeAnalyticsData(eventData);
+    
+    // Validate event type is allowed
+    const allowedEventTypes = [
+      'page_view', 'video_play', 'video_pause', 'video_complete',
+      'scroll_depth', 'button_click', 'section_view', 'timer_interaction',
+      'menu_toggle', 'conversion', 'checkout_start', 'payment_complete'
+    ];
+    
+    if (!allowedEventTypes.includes(sanitizedEventType)) {
+      console.warn(`Invalid event type: ${eventType}`);
+      return;
+    }
+
     // Track to Supabase
     await supabase.from('analytics_events').insert({
       session_id: sessionId,
-      event_type: eventType as any,
-      event_data: eventData,
+      event_type: sanitizedEventType as any,
+      event_data: sanitizedEventData,
       page_url: window.location.href,
       user_agent: navigator.userAgent,
     });
 
     // Also track to Meta Pixel if enabled
     if (trackMetaPixel) {
-      trackMetaPixelEvent(eventType, eventData);
+      trackMetaPixelEvent(sanitizedEventType, sanitizedEventData);
     }
 
-    console.log(`Analytics event tracked: ${eventType}`, eventData);
+    console.log(`Analytics event tracked: ${sanitizedEventType}`, sanitizedEventData);
   } catch (error) {
     console.error('Error tracking analytics event:', error);
   }

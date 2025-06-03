@@ -6,28 +6,45 @@ import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { loginAdmin, storeAdminSession } from '@/utils/adminAuth';
 import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [attempts, setAttempts] = useState(0);
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Basic rate limiting
+  const maxAttempts = 5;
+  const isRateLimited = attempts >= maxAttempts;
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isRateLimited) {
+      toast({
+        title: "Too many attempts",
+        description: "Please refresh the page and try again",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const user = await loginAdmin(email, password);
-      if (user) {
-        storeAdminSession(user);
+      const result = await loginAdmin(email, password);
+      if (result) {
+        storeAdminSession(result.user, result.sessionToken);
         toast({
           title: "Login successful",
           description: "Welcome to the admin dashboard",
         });
         navigate('/admin/dashboard');
       } else {
+        setAttempts(prev => prev + 1);
         toast({
           title: "Login failed",
           description: "Invalid email or password",
@@ -35,6 +52,7 @@ const AdminLogin = () => {
         });
       }
     } catch (error) {
+      setAttempts(prev => prev + 1);
       toast({
         title: "Login error",
         description: "An error occurred during login",
@@ -62,6 +80,7 @@ const AdminLogin = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isLoading || isRateLimited}
                 className="bg-[#1a1a1a] border-[rgba(255,215,0,0.2)] text-white"
               />
             </div>
@@ -72,20 +91,37 @@ const AdminLogin = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={isLoading || isRateLimited}
                 className="bg-[#1a1a1a] border-[rgba(255,215,0,0.2)] text-white"
               />
             </div>
             <Button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || isRateLimited}
               className="w-full bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] font-bold"
             >
-              {isLoading ? 'Logging in...' : 'Login'}
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Logging in...
+                </>
+              ) : (
+                'Login'
+              )}
             </Button>
           </form>
-          <p className="text-sm text-gray-400 mt-4 text-center">
-            Demo credentials: admin@luxevisionshop.com / admin123
-          </p>
+          
+          {isRateLimited && (
+            <p className="text-sm text-red-400 mt-4 text-center">
+              Too many failed attempts. Please refresh the page to try again.
+            </p>
+          )}
+          
+          {attempts > 0 && attempts < maxAttempts && (
+            <p className="text-sm text-yellow-400 mt-4 text-center">
+              {maxAttempts - attempts} attempts remaining
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>

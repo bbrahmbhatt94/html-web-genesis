@@ -2,8 +2,9 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { getAdminSession, clearAdminSession, isAdmin, AdminUser } from '@/utils/adminAuth';
-import { BarChart3, Users, Video, TrendingUp, Activity, Settings, LogOut } from 'lucide-react';
+import { getAdminSession, clearAdminSession, isAdmin, AdminUser, cleanupExpiredSessions } from '@/utils/adminAuth';
+import { BarChart3, Users, Video, TrendingUp, Activity, LogOut } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -11,21 +12,50 @@ interface AdminLayoutProps {
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
   const [user, setUser] = useState<AdminUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
 
   useEffect(() => {
-    const adminUser = getAdminSession();
-    if (!adminUser || !isAdmin(adminUser)) {
-      navigate('/admin/login');
-    } else {
-      setUser(adminUser);
-    }
+    const checkAuth = async () => {
+      try {
+        const adminUser = await getAdminSession();
+        if (!adminUser || !isAdmin(adminUser)) {
+          navigate('/admin/login');
+        } else {
+          setUser(adminUser);
+          // Cleanup expired sessions periodically
+          cleanupExpiredSessions();
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        navigate('/admin/login');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+
+    // Check auth status every 5 minutes
+    const interval = setInterval(checkAuth, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, [navigate]);
 
-  const handleLogout = () => {
-    clearAdminSession();
-    navigate('/admin/login');
+  const handleLogout = async () => {
+    try {
+      await clearAdminSession();
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out",
+      });
+      navigate('/admin/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still navigate to login even if session cleanup fails
+      navigate('/admin/login');
+    }
   };
 
   const navigationItems = [
@@ -37,7 +67,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { path: '/admin/live', label: 'Live Monitoring', icon: Activity },
   ];
 
-  if (!user) return null;
+  if (isLoading || !user) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a] text-white">
@@ -74,8 +104,8 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             <div className="mt-8 pt-8 border-t border-[rgba(255,215,0,0.2)]">
               <div className="text-sm text-gray-400 mb-4">
                 <p>Logged in as:</p>
-                <p className="text-[#ffd700] font-medium">{user.email}</p>
-                <p className="text-xs">{user.role}</p>
+                <p className="text-[#ffd700] font-medium break-all">{user.email}</p>
+                <p className="text-xs capitalize">{user.role.replace('_', ' ')}</p>
               </div>
               
               <Button

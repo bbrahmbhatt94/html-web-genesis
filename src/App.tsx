@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminBehavior from "./pages/AdminBehavior";
+import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -23,8 +24,22 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/behavior" element={<AdminBehavior />} />
+          <Route 
+            path="/admin/dashboard" 
+            element={
+              <AdminProtectedRoute>
+                <AdminDashboard />
+              </AdminProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/behavior" 
+            element={
+              <AdminProtectedRoute>
+                <AdminBehavior />
+              </AdminProtectedRoute>
+            } 
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

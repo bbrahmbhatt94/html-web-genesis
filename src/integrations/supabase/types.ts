@@ -9,6 +9,47 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_sessions: {
+        Row: {
+          admin_id: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          ip_address: unknown | null
+          last_accessed: string | null
+          session_token: string
+          user_agent: string | null
+        }
+        Insert: {
+          admin_id: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          ip_address?: unknown | null
+          last_accessed?: string | null
+          session_token: string
+          user_agent?: string | null
+        }
+        Update: {
+          admin_id?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          last_accessed?: string | null
+          session_token?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_sessions_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_users: {
         Row: {
           created_at: string
@@ -170,8 +211,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_expired_admin_sessions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       is_admin: {
         Args: { user_email: string }
+        Returns: boolean
+      }
+      is_authenticated_admin: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
     }

@@ -31,12 +31,6 @@ const createAdminSession = async (adminId: string): Promise<AdminSession | null>
     const sessionToken = generateSessionToken();
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
     
-    // Set admin context for RLS
-    await supabase.rpc('set_config', {
-      setting_name: 'app.current_admin_id',
-      setting_value: adminId
-    });
-
     const { data, error } = await supabase
       .from('admin_sessions')
       .insert({

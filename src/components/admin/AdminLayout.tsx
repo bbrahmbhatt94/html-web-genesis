@@ -2,7 +2,8 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { getAdminSession, clearAdminSession, isAdmin, AdminUser, cleanupExpiredSessions } from '@/utils/adminAuth';
+import { getAdminSession, clearAdminSession, isAdmin, cleanupExpiredSessions } from '@/utils/admin';
+import type { AdminUser } from '@/types/admin';
 import { BarChart3, Users, Video, TrendingUp, Activity, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 

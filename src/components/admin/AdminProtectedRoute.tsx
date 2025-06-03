@@ -1,7 +1,8 @@
 
 import { ReactNode, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { getAdminSession, AdminUser } from '@/utils/adminAuth';
+import { getAdminSession } from '@/utils/admin';
+import type { AdminUser } from '@/types/admin';
 import { Loader2 } from 'lucide-react';
 
 interface AdminProtectedRouteProps {

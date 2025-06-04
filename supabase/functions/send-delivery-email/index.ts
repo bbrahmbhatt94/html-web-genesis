@@ -15,11 +15,12 @@ serve(async (req) => {
   }
 
   try {
-    const { email, downloadToken, productName, orderNumber } = await req.json();
+    const { email, productName, orderNumber } = await req.json();
     
     console.log("Sending delivery email to:", email);
 
-    const downloadUrl = `${req.headers.get("origin")}/download/${downloadToken}`;
+    // Google Drive download link - replace with your actual Google Drive share link
+    const downloadUrl = "https://drive.google.com/drive/folders/YOUR_GOOGLE_DRIVE_FOLDER_ID?usp=sharing";
 
     const emailResponse = await resend.emails.send({
       from: "LuxeVision <noreply@luxevisionshop.com>",
@@ -43,6 +44,7 @@ serve(async (req) => {
             .feature::before { content: "✓"; color: #ffd700; font-weight: bold; margin-right: 10px; }
             .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
             .order-info { background: #e8f4fd; padding: 15px; border-radius: 6px; margin: 15px 0; }
+            .instructions { background: #fff3cd; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #ffd700; }
           </style>
         </head>
         <body>
@@ -63,7 +65,17 @@ serve(async (req) => {
             </div>
             
             <div style="text-align: center;">
-              <a href="${downloadUrl}" class="download-btn">📥 Download Your Collection</a>
+              <a href="${downloadUrl}" class="download-btn" target="_blank">📥 Access Your Google Drive Collection</a>
+            </div>
+            
+            <div class="instructions">
+              <h3>📋 Download Instructions:</h3>
+              <ol>
+                <li>Click the download button above to access your Google Drive folder</li>
+                <li>Sign in to your Google account if prompted</li>
+                <li>Click "Download All" to get the entire collection as a zip file</li>
+                <li>Or browse and download individual video categories</li>
+              </ol>
             </div>
             
             <div class="features">
@@ -71,16 +83,16 @@ serve(async (req) => {
               <div class="feature">120,000+ Premium 4K Videos</div>
               <div class="feature">Full Commercial License</div>
               <div class="feature">Lifetime Access</div>
-              <div class="feature">Multiple Download Attempts</div>
+              <div class="feature">Organized by Categories</div>
               <div class="feature">24/7 Customer Support</div>
             </div>
             
             <p><strong>Important Notes:</strong></p>
             <ul>
-              <li>This download link expires in 7 days</li>
-              <li>You have up to 5 download attempts</li>
-              <li>Save your files immediately after download</li>
-              <li>Contact support if you encounter any issues</li>
+              <li>This Google Drive link provides permanent access to your files</li>
+              <li>You can download the files multiple times</li>
+              <li>Save or bookmark this link for future access</li>
+              <li>Contact support if you encounter any issues accessing the files</li>
             </ul>
             
             <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>

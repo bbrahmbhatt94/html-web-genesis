@@ -53,26 +53,7 @@ serve(async (req) => {
 
     console.log("Order updated successfully:", order.id);
 
-    // Generate secure download link
-    const downloadToken = crypto.randomUUID();
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7); // 7 days expiry
-
-    const { error: linkError } = await supabase
-      .from('download_links')
-      .insert({
-        order_id: order.id,
-        download_token: downloadToken,
-        expires_at: expiresAt.toISOString(),
-        max_downloads: 5
-      });
-
-    if (linkError) {
-      console.error("Error creating download link:", linkError);
-      throw linkError;
-    }
-
-    // Trigger delivery email
+    // Trigger delivery email (simplified - no download tokens needed)
     const emailResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-delivery-email`, {
       method: 'POST',
       headers: {
@@ -81,7 +62,6 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         email: order.user_email,
-        downloadToken: downloadToken,
         productName: order.product_name,
         orderNumber: order.id
       }),

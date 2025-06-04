@@ -22,13 +22,20 @@ serve(async (req) => {
       apiVersion: "2023-10-16",
     });
 
-    // Get the request body
-    const { amount = 1999, currency = "usd", productName = "LuxeVision Premium Collection" } = await req.json().catch(() => ({}));
+    // Initialize Supabase client
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
 
-    console.log("Creating checkout session for:", { amount, currency, productName });
+    // Get the request body
+    const { amount = 1999, currency = "usd", productName = "LuxeVision Premium Collection", customerEmail } = await req.json().catch(() => ({}));
+
+    console.log("Creating checkout session for:", { amount, currency, productName, customerEmail });
 
     // Create a one-time payment session
     const session = await stripe.checkout.sessions.create({
+      customer_email: customerEmail,
       line_items: [
         {
           price_data: {
@@ -43,9 +50,34 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${req.headers.get("origin")}/payment-success`,
+      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/`,
+      metadata: {
+        product_name: productName,
+        amount: amount.toString(),
+        currency: currency,
+      },
     });
+
+    // Create pending order in database
+    if (customerEmail) {
+      const { error } = await supabase
+        .from('orders')
+        .insert({
+          user_email: customerEmail,
+          stripe_session_id: session.id,
+          amount: amount,
+          currency: currency,
+          product_name: productName,
+          status: 'pending'
+        });
+
+      if (error) {
+        console.error("Error creating order:", error);
+      } else {
+        console.log("Order created successfully for session:", session.id);
+      }
+    }
 
     console.log("Checkout session created:", session.id);
 

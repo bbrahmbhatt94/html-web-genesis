@@ -206,12 +206,102 @@ export type Database = {
         }
         Relationships: []
       }
+      download_links: {
+        Row: {
+          created_at: string
+          download_count: number | null
+          download_token: string
+          expires_at: string
+          id: string
+          is_active: boolean | null
+          last_accessed: string | null
+          max_downloads: number | null
+          order_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          download_count?: number | null
+          download_token: string
+          expires_at: string
+          id?: string
+          is_active?: boolean | null
+          last_accessed?: string | null
+          max_downloads?: number | null
+          order_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          download_count?: number | null
+          download_token?: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_accessed?: string | null
+          max_downloads?: number | null
+          order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "download_links_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string | null
+          delivered_at: string | null
+          id: string
+          product_name: string
+          status: string | null
+          stripe_customer_id: string | null
+          stripe_session_id: string | null
+          updated_at: string
+          user_email: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string | null
+          delivered_at?: string | null
+          id?: string
+          product_name: string
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_email: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          delivered_at?: string | null
+          id?: string
+          product_name?: string
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_email?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       cleanup_expired_admin_sessions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cleanup_expired_downloads: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }

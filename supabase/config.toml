@@ -3,3 +3,9 @@ project_id = "ypsufujqhpixachonnnh"
 
 [functions.create-payment]
 verify_jwt = false
+
+[functions.handle-payment-success]
+verify_jwt = false
+
+[functions.send-delivery-email]
+verify_jwt = false

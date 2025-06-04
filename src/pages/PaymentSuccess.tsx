@@ -1,27 +1,82 @@
 
-import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useSearchParams, Link } from "react-router-dom";
 import { trackPurchase } from "@/utils/metaPixel";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 const PaymentSuccess = () => {
+  const [searchParams] = useSearchParams();
+  const [isProcessingDelivery, setIsProcessingDelivery] = useState(true);
+  const [deliveryStatus, setDeliveryStatus] = useState<'processing' | 'success' | 'error'>('processing');
+
   useEffect(() => {
+    const sessionId = searchParams.get('session_id');
+    
     // Track the successful purchase conversion
     trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection');
-  }, []);
+
+    // Trigger automatic delivery
+    const processDelivery = async () => {
+      if (!sessionId) {
+        setDeliveryStatus('error');
+        setIsProcessingDelivery(false);
+        return;
+      }
+
+      try {
+        console.log("Processing delivery for session:", sessionId);
+        
+        const { error } = await supabase.functions.invoke('handle-payment-success', {
+          body: { session_id: sessionId }
+        });
+
+        if (error) {
+          console.error('Delivery processing error:', error);
+          setDeliveryStatus('error');
+        } else {
+          console.log('Delivery processed successfully');
+          setDeliveryStatus('success');
+        }
+      } catch (error) {
+        console.error('Delivery error:', error);
+        setDeliveryStatus('error');
+      } finally {
+        setIsProcessingDelivery(false);
+      }
+    };
+
+    processDelivery();
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a] text-white flex items-center justify-center px-4">
       <div className="text-center max-w-2xl mx-auto">
         <div className="mb-8">
           <div className="w-24 h-24 bg-gradient-to-r from-[#ffd700] to-[#ffed4e] rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
-            ✓
+            {isProcessingDelivery ? (
+              <div className="animate-spin">⏳</div>
+            ) : deliveryStatus === 'success' ? (
+              "✓"
+            ) : (
+              "⚠️"
+            )}
           </div>
+          
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-[#ffd700] bg-clip-text text-transparent">
-            Payment Successful!
+            {isProcessingDelivery ? "Processing Your Order..." : 
+             deliveryStatus === 'success' ? "Payment Successful!" : 
+             "Payment Received!"}
           </h1>
+          
           <p className="text-xl text-gray-300 mb-8">
-            Thank you for your purchase! You now have lifetime access to our premium 4K luxury video collection.
+            {isProcessingDelivery ? (
+              "We're preparing your download link and sending it to your email. This may take a few moments..."
+            ) : deliveryStatus === 'success' ? (
+              "Thank you for your purchase! Your download link has been sent to your email address."
+            ) : (
+              "Your payment was successful. If you don't receive your download email within 10 minutes, please contact support."
+            )}
           </p>
         </div>
 

@@ -19,8 +19,8 @@ serve(async (req) => {
     
     console.log("Sending delivery email to:", email);
 
-    // Google Drive download link - replace with your actual Google Drive share link
-    const downloadUrl = "https://drive.google.com/drive/folders/YOUR_GOOGLE_DRIVE_FOLDER_ID?usp=sharing";
+    // Google Drive download link - your actual Google Drive share link
+    const downloadUrl = "https://drive.google.com/drive/folders/1pE1hFsl2x2bS25qWanS-JNDITpodkJNv?usp=drive_link";
 
     const emailResponse = await resend.emails.send({
       from: "LuxeVision <noreply@luxevisionshop.com>",

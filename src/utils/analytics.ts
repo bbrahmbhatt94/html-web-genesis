@@ -179,7 +179,9 @@ export const trackSectionView = (sectionName: string) => {
   trackAnalyticsEvent('section_view', { section_name: sectionName });
 };
 
-// Track conversions
+// Track conversions - ONLY for actual successful payments
 export const trackConversion = (value: number, currency: string = 'USD') => {
-  trackAnalyticsEvent('conversion', { value, currency });
+  // This should only be called from PaymentSuccess page
+  trackAnalyticsEvent('conversion', { value, currency }, false); // Don't double-track to Meta Pixel
+  console.log(`Conversion tracked: ${value} ${currency}`);
 };

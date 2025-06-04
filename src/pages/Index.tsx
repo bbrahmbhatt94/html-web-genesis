@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { trackInitiateCheckout, trackViewContent } from "@/utils/metaPixel";
+import { trackViewContent, trackInitiateCheckout } from "@/utils/metaPixel";
 import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
@@ -14,8 +14,9 @@ const Index = () => {
   const handleCheckout = async () => {
     setIsProcessingPayment(true);
     try {
-      // Track checkout initiation
-      trackInitiateCheckout(19.99, 'USD');
+      // Track that user is viewing the checkout content (not a conversion)
+      trackViewContent('Checkout Initiated', 'Premium Video Collection');
+      
       console.log("Calling create-payment function...");
 
       // Call Stripe edge function
@@ -36,6 +37,10 @@ const Index = () => {
         return;
       }
       if (data?.url) {
+        // Only track InitiateCheckout when we successfully create the payment session
+        // and are about to redirect to Stripe checkout
+        trackInitiateCheckout(19.99, 'USD');
+        
         // Redirect to Stripe checkout
         window.location.href = data.url;
       }
@@ -205,6 +210,7 @@ const Index = () => {
       videoObserver.disconnect();
     };
   }, []);
+
   return <div className="min-h-screen overflow-x-hidden">
       <header className="fixed w-full top-0 z-50 bg-gradient-to-r from-[#1a1a1a] to-[#2d2d2d] text-white py-4 backdrop-blur-lg">
         <nav className="container mx-auto px-5 flex justify-between items-center">

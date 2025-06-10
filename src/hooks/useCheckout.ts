@@ -5,16 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const useCheckout = () => {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [customerEmail, setCustomerEmail] = useState("");
 
-  const handleCheckout = async (email?: string) => {
-    const emailToUse = email || customerEmail;
-    
-    if (!emailToUse) {
-      alert('Please provide your email address to receive the download link.');
-      return;
-    }
-
+  const handleCheckout = async () => {
     setIsProcessingPayment(true);
     try {
       trackViewContent('Checkout Initiated', 'Premium Video Collection');
@@ -28,8 +20,7 @@ export const useCheckout = () => {
         body: {
           amount: 1999,
           currency: 'usd',
-          productName: 'LuxeVision Premium Collection',
-          customerEmail: emailToUse
+          productName: 'LuxeVision Premium Collection'
         }
       });
 
@@ -53,8 +44,6 @@ export const useCheckout = () => {
 
   return { 
     handleCheckout, 
-    isProcessingPayment, 
-    customerEmail, 
-    setCustomerEmail 
+    isProcessingPayment
   };
 };

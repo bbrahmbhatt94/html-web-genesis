@@ -1,7 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -22,20 +21,13 @@ serve(async (req) => {
       apiVersion: "2023-10-16",
     });
 
-    // Initialize Supabase client
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
-
     // Get the request body
-    const { amount = 1999, currency = "usd", productName = "LuxeVision Premium Collection", customerEmail } = await req.json().catch(() => ({}));
+    const { amount = 1999, currency = "usd", productName = "LuxeVision Premium Collection" } = await req.json().catch(() => ({}));
 
-    console.log("Creating checkout session for:", { amount, currency, productName, customerEmail });
+    console.log("Creating checkout session for:", { amount, currency, productName });
 
     // Create a one-time payment session
     const session = await stripe.checkout.sessions.create({
-      customer_email: customerEmail,
       line_items: [
         {
           price_data: {
@@ -58,26 +50,6 @@ serve(async (req) => {
         currency: currency,
       },
     });
-
-    // Create pending order in database
-    if (customerEmail) {
-      const { error } = await supabase
-        .from('orders')
-        .insert({
-          user_email: customerEmail,
-          stripe_session_id: session.id,
-          amount: amount,
-          currency: currency,
-          product_name: productName,
-          status: 'pending'
-        });
-
-      if (error) {
-        console.error("Error creating order:", error);
-      } else {
-        console.log("Order created successfully for session:", session.id);
-      }
-    }
 
     console.log("Checkout session created:", session.id);
 

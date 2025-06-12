@@ -292,6 +292,53 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          approved_at: string | null
+          approved_by_admin_id: string | null
+          created_at: string
+          customer_email: string
+          customer_name: string
+          id: string
+          rating: number
+          review_text: string
+          status: Database["public"]["Enums"]["review_status"]
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by_admin_id?: string | null
+          created_at?: string
+          customer_email: string
+          customer_name: string
+          id?: string
+          rating: number
+          review_text: string
+          status?: Database["public"]["Enums"]["review_status"]
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by_admin_id?: string | null
+          created_at?: string
+          customer_email?: string
+          customer_name?: string
+          id?: string
+          rating?: number
+          review_text?: string
+          status?: Database["public"]["Enums"]["review_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_approved_by_admin_id_fkey"
+            columns: ["approved_by_admin_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -304,6 +351,14 @@ export type Database = {
       cleanup_expired_downloads: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      get_review_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total_reviews: number
+          average_rating: number
+          rating_breakdown: Json
+        }[]
       }
       is_admin: {
         Args: { user_email: string }
@@ -329,6 +384,7 @@ export type Database = {
         | "conversion"
         | "checkout_start"
         | "payment_complete"
+      review_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -459,6 +515,7 @@ export const Constants = {
         "checkout_start",
         "payment_complete",
       ],
+      review_status: ["pending", "approved", "rejected"],
     },
   },
 } as const

@@ -12,6 +12,7 @@ import { Features } from "@/components/sections/Features";
 import { TargetAudience } from "@/components/sections/TargetAudience";
 import { Categories } from "@/components/sections/Categories";
 import { PricingSection } from "@/components/sections/PricingSection";
+import { ReviewsSection } from "@/components/sections/ReviewsSection";
 import { Footer } from "@/components/layout/Footer";
 
 const Index = () => {
@@ -36,6 +37,7 @@ const Index = () => {
       <TargetAudience onCheckout={handleCheckout} isProcessingPayment={isProcessingPayment} />
       <Categories />
       <PricingSection onCheckout={handleCheckout} isProcessingPayment={isProcessingPayment} />
+      <ReviewsSection />
       <Footer />
     </div>
   );

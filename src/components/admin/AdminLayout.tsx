@@ -4,7 +4,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { getAdminSession, clearAdminSession, isAdmin, cleanupExpiredSessions } from '@/utils/admin';
 import type { AdminUser } from '@/types/admin';
-import { BarChart3, Users, Video, TrendingUp, Activity, LogOut } from 'lucide-react';
+import { BarChart3, Users, Video, TrendingUp, Activity, LogOut, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface AdminLayoutProps {
@@ -42,7 +42,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     // Check auth status every 5 minutes
     const interval = setInterval(checkAuth, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [navigate]);
+  },  [navigate]);
 
   const handleLogout = async () => {
     try {
@@ -66,6 +66,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { path: '/admin/conversions', label: 'Conversions', icon: TrendingUp },
     { path: '/admin/performance', label: 'Performance', icon: Activity },
     { path: '/admin/live', label: 'Live Monitoring', icon: Activity },
+    { path: '/admin/reviews', label: 'Reviews', icon: Star },
   ];
 
   if (isLoading || !user) return null;

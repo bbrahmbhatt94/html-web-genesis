@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminBehavior from "./pages/AdminBehavior";
+import AdminReviews from "./pages/AdminReviews";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,14 @@ const App = () => (
             element={
               <AdminProtectedRoute>
                 <AdminBehavior />
+              </AdminProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/reviews" 
+            element={
+              <AdminProtectedRoute>
+                <AdminReviews />
               </AdminProtectedRoute>
             } 
           />

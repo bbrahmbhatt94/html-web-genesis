@@ -12,6 +12,18 @@ interface ReviewStats {
   };
 }
 
+// Type guard to safely convert Json to rating breakdown
+const isValidRatingBreakdown = (data: any): data is { [key: string]: number } => {
+  if (!data || typeof data !== 'object') return false;
+  
+  // Check if all values are numbers
+  for (const key in data) {
+    if (typeof data[key] !== 'number') return false;
+  }
+  
+  return true;
+};
+
 export const ReviewStats = () => {
   const [stats, setStats] = useState<ReviewStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -27,7 +39,18 @@ export const ReviewStats = () => {
       if (error) throw error;
       
       if (data && data.length > 0) {
-        setStats(data[0]);
+        const rawStats = data[0];
+        
+        // Safely convert the rating_breakdown from Json to our expected type
+        const rating_breakdown = isValidRatingBreakdown(rawStats.rating_breakdown) 
+          ? rawStats.rating_breakdown 
+          : {};
+        
+        setStats({
+          total_reviews: rawStats.total_reviews || 0,
+          average_rating: rawStats.average_rating || 0,
+          rating_breakdown
+        });
       }
     } catch (error) {
       console.error('Error fetching review stats:', error);

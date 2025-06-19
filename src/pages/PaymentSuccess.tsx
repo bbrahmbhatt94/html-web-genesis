@@ -73,7 +73,7 @@ const PaymentSuccess = () => {
             {isProcessingDelivery ? (
               "We're preparing your download link and sending it to your email. This may take a few moments..."
             ) : deliveryStatus === 'success' ? (
-              "Thank you for your purchase! Your download link has been sent to your email address."
+              "You will receive the download link in an email shortly."
             ) : (
               "Your payment was successful. If you don't receive your download email within 10 minutes, please contact support."
             )}

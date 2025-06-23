@@ -75,7 +75,7 @@ const PaymentSuccess = () => {
             ) : deliveryStatus === 'success' ? (
               "You will receive the download link in an email shortly."
             ) : (
-              "Your payment was successful. If you don't receive your download email within 10 minutes, please contact support."
+              "Your payment was successful. You will receive the download link shortly, if you don't email kovioshop@gmail.com"
             )}
           </p>
         </div>

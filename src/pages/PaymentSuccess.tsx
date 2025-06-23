@@ -65,7 +65,7 @@ const PaymentSuccess = () => {
             </a>
           </Button>
           
-          <Button asChild variant="outline" className="border-[#ffd700] text-[#ffd700] hover:bg-[#ffd700] hover:text-[#1a1a1a]">
+          <Button asChild className="bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-8 py-3 rounded-full font-bold text-lg hover:shadow-lg">
             <Link to="/">
               Return to Home
             </Link>

@@ -32,6 +32,16 @@ export const useCheckout = () => {
 
       if (data?.url) {
         trackInitiateCheckout(19.99, 'USD');
+        
+        // Extract session ID from the Stripe URL for tracking
+        const urlParams = new URLSearchParams(data.url.split('?')[1]);
+        const sessionId = data.url.match(/checkout\/sessions\/([^/?]+)/)?.[1];
+        
+        if (sessionId) {
+          // Store timestamp for session validation
+          localStorage.setItem(`payment_${sessionId}`, Date.now().toString());
+        }
+        
         window.location.href = data.url;
       }
     } catch (error) {

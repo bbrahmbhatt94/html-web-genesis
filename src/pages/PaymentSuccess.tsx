@@ -1,16 +1,37 @@
 
 import { useEffect } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, Navigate } from "react-router-dom";
 import { trackPurchase } from "@/utils/metaPixel";
 import { Button } from "@/components/ui/button";
+import { usePaymentVerification } from "@/hooks/usePaymentVerification";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
+  const { isVerifying, isValidPayment, error } = usePaymentVerification();
 
   useEffect(() => {
-    // Track the successful purchase conversion
-    trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection');
-  }, []);
+    // Only track purchase if payment is verified
+    if (isValidPayment) {
+      trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection');
+    }
+  }, [isValidPayment]);
+
+  // Show loading while verifying
+  if (isVerifying) {
+    return (
+      <div className="min-h-screen bg-gradient-to-r from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a] text-white flex items-center justify-center px-4">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-[#ffd700] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-xl text-gray-300">Verifying your payment...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect to home if payment is not valid
+  if (!isValidPayment) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a] text-white flex items-center justify-center px-4">
@@ -51,7 +72,7 @@ const PaymentSuccess = () => {
           </ul>
         </div>
 
-        <div className="flex flex-col items-center space-y-8">
+        <div className="flex flex-col items-center space-y-6">
           <Button 
             asChild 
             className="bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-8 py-3 rounded-full font-bold text-lg hover:shadow-lg"

@@ -26,7 +26,7 @@ serve(async (req) => {
 
     console.log("Creating checkout session for:", { amount, currency, productName });
 
-    // Create a one-time payment session with enhanced security
+    // Create a one-time payment session
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
@@ -48,10 +48,7 @@ serve(async (req) => {
         product_name: productName,
         amount: amount.toString(),
         currency: currency,
-        timestamp: new Date().toISOString(),
       },
-      // Add session expiration (24 hours)
-      expires_at: Math.floor(Date.now() / 1000) + (24 * 60 * 60),
     });
 
     console.log("Checkout session created:", session.id);

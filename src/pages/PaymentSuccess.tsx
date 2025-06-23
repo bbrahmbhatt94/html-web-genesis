@@ -51,10 +51,10 @@ const PaymentSuccess = () => {
           </ul>
         </div>
 
-        <div className="space-y-4">
+        <div className="flex flex-col items-center space-y-8">
           <Button 
             asChild 
-            className="bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-8 py-3 rounded-full font-bold text-lg hover:shadow-lg mb-4"
+            className="bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] px-8 py-3 rounded-full font-bold text-lg hover:shadow-lg"
           >
             <a 
               href="https://drive.google.com/drive/folders/1pE1hFsl2x2bS25qWanS-JNDITpodkJNv" 
@@ -70,11 +70,11 @@ const PaymentSuccess = () => {
               Return to Home
             </Link>
           </Button>
-          
-          <p className="text-sm text-gray-400 mt-6">
-            Need help? Contact us at support@luxevisionshop.com
-          </p>
         </div>
+        
+        <p className="text-sm text-gray-400 mt-8">
+          Need help? Contact us at support@luxevisionshop.com
+        </p>
       </div>
     </div>
   );

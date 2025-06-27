@@ -55,14 +55,12 @@ const PaymentSuccess = () => {
           <div className="w-24 h-24 bg-gradient-to-r from-[#ffd700] to-[#ffed4e] rounded-full flex items-center justify-center text-4xl mx-auto mb-6 p-2">
             {isProcessingDelivery ? (
               <div className="animate-spin">⏳</div>
-            ) : deliveryStatus === 'success' ? (
+            ) : (
               <img 
                 src="/lovable-uploads/48f02853-b18f-49f8-8dff-9f424d49c69c.png" 
                 alt="Success" 
                 className="w-full h-full object-contain"
               />
-            ) : (
-              "⚠️"
             )}
           </div>
           

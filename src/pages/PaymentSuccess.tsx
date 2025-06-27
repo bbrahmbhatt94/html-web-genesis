@@ -3,11 +3,13 @@ import { useSearchParams, Link } from "react-router-dom";
 import { trackPurchase } from "@/utils/metaPixel";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { useCanvaCheckout } from "@/hooks/useCanvaCheckout";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const [isProcessingDelivery, setIsProcessingDelivery] = useState(true);
   const [deliveryStatus, setDeliveryStatus] = useState<'processing' | 'success' | 'error'>('processing');
+  const { handleCanvaCheckout, isProcessingPayment } = useCanvaCheckout();
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
@@ -101,6 +103,64 @@ const PaymentSuccess = () => {
               Enjoy lifetime updates and new content
             </li>
           </ul>
+        </div>
+
+        {/* Canva Templates Upsell Section */}
+        <div className="bg-gradient-to-r from-[#dc2626] to-[#ea580c] p-8 rounded-2xl border-2 border-[#ffd700] mb-8 relative overflow-hidden">
+          <div className="absolute top-0 right-0 bg-[#ffd700] text-black px-4 py-2 rounded-bl-2xl font-bold text-sm">
+            LIMITED TIME
+          </div>
+          
+          <div className="relative z-10">
+            <h2 className="text-3xl font-bold text-white mb-2">🎨 BONUS OFFER!</h2>
+            <h3 className="text-2xl font-bold text-[#ffd700] mb-4">Discounted 350+ Canva Templates for your Ads</h3>
+            <p className="text-xl text-white mb-6 font-semibold">Proven to get sales and a 5.6x ROAS</p>
+            
+            <div className="bg-black/20 p-4 rounded-xl mb-6">
+              <p className="text-white text-lg mb-2">Perfect for creating:</p>
+              <ul className="text-left space-y-2 text-white">
+                <li className="flex items-center">
+                  <span className="w-2 h-2 bg-[#ffd700] rounded-full mr-3"></span>
+                  Facebook & Instagram Ads
+                </li>
+                <li className="flex items-center">
+                  <span className="w-2 h-2 bg-[#ffd700] rounded-full mr-3"></span>
+                  YouTube Thumbnails
+                </li>
+                <li className="flex items-center">
+                  <span className="w-2 h-2 bg-[#ffd700] rounded-full mr-3"></span>
+                  Social Media Posts
+                </li>
+                <li className="flex items-center">
+                  <span className="w-2 h-2 bg-[#ffd700] rounded-full mr-3"></span>
+                  Banner Ads & More
+                </li>
+              </ul>
+            </div>
+
+            <div className="text-center">
+              <div className="text-white text-lg mb-2">
+                <span className="line-through text-gray-300">$29.99</span>
+                <span className="text-3xl font-bold text-[#ffd700] ml-2">$4.99</span>
+                <span className="text-sm ml-2">(83% OFF)</span>
+              </div>
+              
+              <Button 
+                onClick={handleCanvaCheckout}
+                disabled={isProcessingPayment}
+                className="bg-[#ffd700] hover:bg-[#ffed4e] text-black px-8 py-4 rounded-full font-bold text-xl shadow-lg transform hover:scale-105 transition-all duration-300 w-full max-w-md"
+              >
+                {isProcessingPayment ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin">⏳</div>
+                    Processing...
+                  </div>
+                ) : (
+                  "🔥 CLICK HERE - GET TEMPLATES NOW!"
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-4">

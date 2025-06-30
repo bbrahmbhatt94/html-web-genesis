@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { trackPurchase } from "@/utils/metaPixel";
@@ -14,11 +13,8 @@ const PaymentSuccess = () => {
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
-    
-    // Track the successful purchase conversion
-    trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection');
 
-    // Trigger automatic delivery
+    // Trigger automatic delivery and payment verification
     const processDelivery = async () => {
       if (!sessionId) {
         setDeliveryStatus('error');
@@ -29,7 +25,7 @@ const PaymentSuccess = () => {
       try {
         console.log("Processing delivery for session:", sessionId);
         
-        const { error } = await supabase.functions.invoke('handle-payment-success', {
+        const { data, error } = await supabase.functions.invoke('handle-payment-success', {
           body: { session_id: sessionId }
         });
 
@@ -37,8 +33,14 @@ const PaymentSuccess = () => {
           console.error('Delivery processing error:', error);
           setDeliveryStatus('error');
         } else {
-          console.log('Delivery processed successfully');
+          console.log('Delivery processed successfully:', data);
           setDeliveryStatus('success');
+          
+          // Only track the purchase AFTER successful payment verification and delivery
+          if (data?.success) {
+            console.log('Payment verified as successful, tracking purchase event');
+            trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection');
+          }
         }
       } catch (error) {
         console.error('Delivery error:', error);

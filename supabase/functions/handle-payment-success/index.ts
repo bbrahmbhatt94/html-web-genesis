@@ -32,43 +32,87 @@ serve(async (req) => {
     const session = await stripe.checkout.sessions.retrieve(session_id);
     
     if (session.payment_status !== 'paid') {
+      console.log("Payment not completed, status:", session.payment_status);
       throw new Error('Payment not completed');
     }
 
-    // Update order status to paid
-    const { data: order, error: updateError } = await supabase
-      .from('orders')
-      .update({ 
-        status: 'paid',
-        stripe_customer_id: session.customer as string
-      })
-      .eq('stripe_session_id', session_id)
-      .select()
-      .single();
+    console.log("Payment verified as successful in Stripe");
 
-    if (updateError) {
-      console.error("Error updating order:", updateError);
-      throw updateError;
+    // Try to find existing order
+    const { data: existingOrder, error: findError } = await supabase
+      .from('orders')
+      .select()
+      .eq('stripe_session_id', session_id)
+      .maybeSingle();
+
+    let order;
+
+    if (existingOrder) {
+      // Update existing order
+      const { data: updatedOrder, error: updateError } = await supabase
+        .from('orders')
+        .update({ 
+          status: 'paid',
+          stripe_customer_id: session.customer as string
+        })
+        .eq('stripe_session_id', session_id)
+        .select()
+        .single();
+
+      if (updateError) {
+        console.error("Error updating order:", updateError);
+        throw updateError;
+      }
+
+      order = updatedOrder;
+      console.log("Order updated successfully:", order.id);
+    } else {
+      // Create new order if it doesn't exist (fallback)
+      const { data: newOrder, error: createError } = await supabase
+        .from('orders')
+        .insert({
+          stripe_session_id: session_id,
+          user_email: 'guest@luxevisionshop.com',
+          product_name: session.metadata?.product_name || 'LuxeVision Premium Collection',
+          amount: parseInt(session.metadata?.amount || '1999'),
+          currency: session.metadata?.currency || 'usd',
+          status: 'paid',
+          stripe_customer_id: session.customer as string
+        })
+        .select()
+        .single();
+
+      if (createError) {
+        console.error("Error creating order:", createError);
+        throw createError;
+      }
+
+      order = newOrder;
+      console.log("Order created successfully:", order.id);
     }
 
-    console.log("Order updated successfully:", order.id);
+    // Trigger delivery email
+    try {
+      const emailResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-delivery-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+        },
+        body: JSON.stringify({
+          email: order.user_email,
+          productName: order.product_name,
+          orderNumber: order.id
+        }),
+      });
 
-    // Trigger delivery email (simplified - no download tokens needed)
-    const emailResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-delivery-email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
-      },
-      body: JSON.stringify({
-        email: order.user_email,
-        productName: order.product_name,
-        orderNumber: order.id
-      }),
-    });
-
-    if (!emailResponse.ok) {
-      console.error("Failed to send delivery email");
+      if (!emailResponse.ok) {
+        console.error("Failed to send delivery email");
+      } else {
+        console.log("Delivery email sent successfully");
+      }
+    } catch (emailError) {
+      console.error("Email sending error:", emailError);
     }
 
     // Mark order as delivered

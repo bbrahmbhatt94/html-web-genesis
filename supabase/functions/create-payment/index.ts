@@ -1,5 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 
 const corsHeaders = {
@@ -21,6 +22,12 @@ serve(async (req) => {
       apiVersion: "2023-10-16",
     });
 
+    // Initialize Supabase client with service role key for database operations
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
     // Get the request body
     const { amount = 1999, currency = "usd", productName = "LuxeVision Premium Collection" } = await req.json().catch(() => ({}));
 
@@ -36,7 +43,7 @@ serve(async (req) => {
               name: productName,
               description: "Premium 4K Luxury Video Collection - Lifetime Access"
             },
-            unit_amount: amount, // $19.99 in cents
+            unit_amount: amount, // Amount in cents
           },
           quantity: 1,
         },
@@ -52,6 +59,32 @@ serve(async (req) => {
     });
 
     console.log("Checkout session created:", session.id);
+
+    // Create order record in database
+    try {
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          stripe_session_id: session.id,
+          user_email: 'guest@luxevisionshop.com', // Default guest email
+          product_name: productName,
+          amount: amount,
+          currency: currency,
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (orderError) {
+        console.error("Error creating order:", orderError);
+        // Continue with payment even if order creation fails
+      } else {
+        console.log("Order created successfully:", order.id);
+      }
+    } catch (dbError) {
+      console.error("Database error:", dbError);
+      // Continue with payment even if database operation fails
+    }
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

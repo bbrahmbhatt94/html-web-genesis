@@ -81,7 +81,12 @@ const PaymentSuccess = () => {
             ) : deliveryStatus === 'success' ? (
               "You will receive the download link in an email shortly."
             ) : (
-              "Your payment was successful. You will receive the download link shortly, if you don't email kovioshop@gmail.com"
+              <>
+                "Your payment was successful. You will receive the download link shortly, if you don't email kovioshop@gmail.com*"
+                <div className="text-xs text-gray-400 mt-2">
+                  *Please check your spam folder
+                </div>
+              </>
             )}
           </p>
         </div>

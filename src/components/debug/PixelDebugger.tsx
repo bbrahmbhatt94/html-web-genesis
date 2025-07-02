@@ -20,26 +20,29 @@ export const PixelDebugger = () => {
 
   const testPurchaseEvent = () => {
     const testId = `test-${Date.now()}`;
-    console.log('Testing purchase event with ID:', testId);
-    trackPurchase(19.99, 'USD', 'Test Purchase Event', testId);
+    console.log('🧪 Testing purchase event with ID:', testId);
     
-    // Update local state
-    const updated = [...trackedPurchases, testId];
-    setTrackedPurchases(updated);
+    const success = trackPurchase(19.99, 'USD', 'Test Purchase Event', testId);
     
-    // Log to debug
-    const newDebugEntry = {
-      timestamp: new Date().toISOString(),
-      event: 'Purchase',
-      value: 19.99,
-      currency: 'USD',
-      transaction_id: testId,
-      type: 'manual_test'
-    };
+    if (success) {
+      console.log('✅ Test purchase event fired successfully');
+      alert('✅ Test purchase event fired successfully!');
+      
+      // Update local state
+      const updated = [...trackedPurchases, testId];
+      setTrackedPurchases(updated);
+    } else {
+      console.log('❌ Test purchase event failed');
+      alert('❌ Test purchase event failed - check console for details');
+    }
     
-    const updatedDebug = [...debugInfo, newDebugEntry].slice(-10);
-    setDebugInfo(updatedDebug);
-    localStorage.setItem('pixel_debug_log', JSON.stringify(updatedDebug));
+    // Refresh debug info
+    setTimeout(() => {
+      const debug = JSON.parse(localStorage.getItem('pixel_debug_log') || '[]');
+      setDebugInfo(debug.slice(-10));
+      const purchases = JSON.parse(localStorage.getItem('tracked_purchases') || '[]');
+      setTrackedPurchases(purchases);
+    }, 500);
   };
 
   const clearTracking = () => {
@@ -91,10 +94,43 @@ export const PixelDebugger = () => {
       <CardContent className="p-4 space-y-3">
         <div className="grid grid-cols-2 gap-2">
           <Button onClick={testPurchaseEvent} size="sm" className="bg-green-600 hover:bg-green-700">
-            Test Purchase
+            🧪 Test Purchase
           </Button>
           <Button onClick={checkPixelStatus} size="sm" className="bg-blue-600 hover:bg-blue-700">
-            Check Pixel
+            📊 Check Pixel
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-2">
+          <Button 
+            onClick={() => {
+              const sessionId = new URLSearchParams(window.location.search).get('session_id');
+              if (sessionId) {
+                trackPurchase(19.99, 'USD', 'Real Session Test', sessionId);
+                alert(`🔄 Tracked purchase for real session: ${sessionId}`);
+              } else {
+                alert('❌ No session_id found in URL');
+              }
+            }} 
+            size="sm" 
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            🔄 Test Real Session
+          </Button>
+          <Button 
+            onClick={() => {
+              // Force track multiple test purchases
+              for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                  trackPurchase(19.99, 'USD', `Bulk Test ${i+1}`, `bulk-${Date.now()}-${i}`);
+                }, i * 1000);
+              }
+              alert('🚀 Fired 3 test purchases (1s intervals)');
+            }} 
+            size="sm" 
+            className="bg-orange-600 hover:bg-orange-700"
+          >
+            🚀 Bulk Test
           </Button>
         </div>
         

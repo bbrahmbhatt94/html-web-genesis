@@ -208,6 +208,7 @@ serve(async (req) => {
 
     if (deliveryError) {
       console.error(`[${requestId}] ERROR marking order as delivered:`, deliveryError);
+      // Continue even if delivery marking fails
     } else {
       console.log(`[${requestId}] Order marked as delivered successfully:`, {
         id: deliveredOrder.id,
@@ -215,6 +216,11 @@ serve(async (req) => {
         delivered_at: deliveredOrder.delivered_at
       });
     }
+
+    // CRITICAL: Send success response immediately for pixel tracking
+    console.log(`[${requestId}] 🎯 PIXEL READY: Order processed, client can track purchase now`);
+    console.log(`[${requestId}] Final order status: ${deliveredOrder?.status || order.status}`);
+    console.log(`[${requestId}] Order delivery completed for: ${order.user_email}`);
 
     console.log(`[${requestId}] Order delivery completed for: ${order.user_email}`);
     console.log(`[${requestId}] === HANDLE PAYMENT SUCCESS COMPLETE ===`);

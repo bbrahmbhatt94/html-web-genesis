@@ -18,26 +18,45 @@ const PaymentSuccess = () => {
 
     console.log(`[PAYMENT-SUCCESS-${requestId}] === PAYMENT SUCCESS PAGE LOADED ===`);
     console.log(`[PAYMENT-SUCCESS-${requestId}] Session ID: ${sessionId}`);
+    console.log(`[PAYMENT-SUCCESS-${requestId}] Meta Pixel available:`, typeof window !== 'undefined' && window.fbq ? 'YES' : 'NO');
 
-    // Trigger automatic delivery and payment verification
+    // IMMEDIATE PIXEL TRACKING - Track purchase immediately on page load since Stripe redirected here
+    if (sessionId) {
+      console.log(`[PAYMENT-SUCCESS-${requestId}] IMMEDIATE: Tracking purchase for verified session ${sessionId}`);
+      trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection', sessionId);
+      
+      // Also track the conversion completion
+      window.dispatchEvent(new CustomEvent('pixelTrackPurchase', {
+        detail: { sessionId, amount: 19.99, currency: 'USD' }
+      }));
+    } else {
+      console.log(`[PAYMENT-SUCCESS-${requestId}] IMMEDIATE: Tracking fallback purchase (no session_id)`);
+      const fallbackId = `fallback-${Date.now()}`;
+      trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection', fallbackId);
+    }
+
+    // Trigger delivery processing in background (non-blocking)
     const processDelivery = async () => {
       if (!sessionId) {
         console.error(`[PAYMENT-SUCCESS-${requestId}] ERROR: No session_id in URL`);
         setDeliveryStatus('error');
         setIsProcessingDelivery(false);
-        
-        // Try fallback pixel tracking for successful checkout redirect
-        console.log(`[PAYMENT-SUCCESS-${requestId}] Attempting fallback purchase tracking (no session_id)`);
-        trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection', `fallback-${Date.now()}`);
         return;
       }
 
       try {
         console.log(`[PAYMENT-SUCCESS-${requestId}] Processing delivery for session: ${sessionId}`);
         
-        const { data, error } = await supabase.functions.invoke('handle-payment-success', {
+        // Add timeout to function call
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Function timeout')), 10000)
+        );
+        
+        const functionPromise = supabase.functions.invoke('handle-payment-success', {
           body: { session_id: sessionId }
         });
+
+        const { data, error } = await Promise.race([functionPromise, timeoutPromise]) as any;
 
         console.log(`[PAYMENT-SUCCESS-${requestId}] Function response:`, { data, error });
 
@@ -45,36 +64,45 @@ const PaymentSuccess = () => {
           console.error(`[PAYMENT-SUCCESS-${requestId}] Delivery processing error:`, error);
           setDeliveryStatus('error');
           
-          // Even if delivery fails, track the purchase since user reached success page
-          console.log(`[PAYMENT-SUCCESS-${requestId}] Tracking purchase despite delivery error`);
-          trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection', sessionId);
+          // Additional pixel tracking attempt on error (backup)
+          console.log(`[PAYMENT-SUCCESS-${requestId}] BACKUP: Additional pixel tracking attempt`);
+          setTimeout(() => trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection', sessionId), 2000);
         } else {
           console.log(`[PAYMENT-SUCCESS-${requestId}] Delivery processed successfully:`, data);
           setDeliveryStatus('success');
           
-          // Track the purchase after successful payment verification and delivery
+          // Success confirmation - additional pixel tracking
           if (data?.success) {
-            console.log(`[PAYMENT-SUCCESS-${requestId}] Payment verified as successful, tracking purchase event`);
-            trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection', sessionId);
-          } else {
-            console.log(`[PAYMENT-SUCCESS-${requestId}] Payment not verified but on success page, tracking anyway`);
-            trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection', sessionId);
+            console.log(`[PAYMENT-SUCCESS-${requestId}] CONFIRMED: Payment verified, additional tracking`);
+            setTimeout(() => trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection', sessionId), 1000);
           }
         }
       } catch (error) {
         console.error(`[PAYMENT-SUCCESS-${requestId}] Delivery error:`, error);
         setDeliveryStatus('error');
         
-        // Track purchase even on error since user is on success page
-        console.log(`[PAYMENT-SUCCESS-${requestId}] Tracking purchase despite error`);
-        trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection', sessionId);
+        // Final fallback pixel tracking
+        console.log(`[PAYMENT-SUCCESS-${requestId}] FINAL FALLBACK: Tracking purchase despite all errors`);
+        setTimeout(() => trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection', sessionId || `error-fallback-${Date.now()}`), 3000);
       } finally {
         setIsProcessingDelivery(false);
         console.log(`[PAYMENT-SUCCESS-${requestId}] === PAYMENT SUCCESS PROCESSING COMPLETE ===`);
       }
     };
 
+    // Start delivery processing but don't block pixel tracking
     processDelivery();
+
+    // Additional pixel tracking attempts with delays (insurance)
+    setTimeout(() => {
+      console.log(`[PAYMENT-SUCCESS-${requestId}] INSURANCE: 5s delayed pixel tracking`);
+      trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection', sessionId || `delayed-${Date.now()}`);
+    }, 5000);
+
+    setTimeout(() => {
+      console.log(`[PAYMENT-SUCCESS-${requestId}] INSURANCE: 10s delayed pixel tracking`);
+      trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection', sessionId || `delayed2-${Date.now()}`);
+    }, 10000);
   }, [searchParams]);
 
   return (

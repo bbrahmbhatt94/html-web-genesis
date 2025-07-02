@@ -4,6 +4,7 @@ import { trackPurchase } from "@/utils/metaPixel";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useCanvaCheckout } from "@/hooks/useCanvaCheckout";
+import { PixelDebugger } from "@/components/debug/PixelDebugger";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -13,40 +14,63 @@ const PaymentSuccess = () => {
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
+    const requestId = crypto.randomUUID();
+
+    console.log(`[PAYMENT-SUCCESS-${requestId}] === PAYMENT SUCCESS PAGE LOADED ===`);
+    console.log(`[PAYMENT-SUCCESS-${requestId}] Session ID: ${sessionId}`);
 
     // Trigger automatic delivery and payment verification
     const processDelivery = async () => {
       if (!sessionId) {
+        console.error(`[PAYMENT-SUCCESS-${requestId}] ERROR: No session_id in URL`);
         setDeliveryStatus('error');
         setIsProcessingDelivery(false);
+        
+        // Try fallback pixel tracking for successful checkout redirect
+        console.log(`[PAYMENT-SUCCESS-${requestId}] Attempting fallback purchase tracking (no session_id)`);
+        trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection', `fallback-${Date.now()}`);
         return;
       }
 
       try {
-        console.log("Processing delivery for session:", sessionId);
+        console.log(`[PAYMENT-SUCCESS-${requestId}] Processing delivery for session: ${sessionId}`);
         
         const { data, error } = await supabase.functions.invoke('handle-payment-success', {
           body: { session_id: sessionId }
         });
 
+        console.log(`[PAYMENT-SUCCESS-${requestId}] Function response:`, { data, error });
+
         if (error) {
-          console.error('Delivery processing error:', error);
+          console.error(`[PAYMENT-SUCCESS-${requestId}] Delivery processing error:`, error);
           setDeliveryStatus('error');
+          
+          // Even if delivery fails, track the purchase since user reached success page
+          console.log(`[PAYMENT-SUCCESS-${requestId}] Tracking purchase despite delivery error`);
+          trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection', sessionId);
         } else {
-          console.log('Delivery processed successfully:', data);
+          console.log(`[PAYMENT-SUCCESS-${requestId}] Delivery processed successfully:`, data);
           setDeliveryStatus('success');
           
-          // Only track the purchase AFTER successful payment verification and delivery
+          // Track the purchase after successful payment verification and delivery
           if (data?.success) {
-            console.log('Payment verified as successful, tracking purchase event');
-            trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection');
+            console.log(`[PAYMENT-SUCCESS-${requestId}] Payment verified as successful, tracking purchase event`);
+            trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection', sessionId);
+          } else {
+            console.log(`[PAYMENT-SUCCESS-${requestId}] Payment not verified but on success page, tracking anyway`);
+            trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection', sessionId);
           }
         }
       } catch (error) {
-        console.error('Delivery error:', error);
+        console.error(`[PAYMENT-SUCCESS-${requestId}] Delivery error:`, error);
         setDeliveryStatus('error');
+        
+        // Track purchase even on error since user is on success page
+        console.log(`[PAYMENT-SUCCESS-${requestId}] Tracking purchase despite error`);
+        trackPurchase(19.99, 'USD', 'LuxeVision Premium Collection', sessionId);
       } finally {
         setIsProcessingDelivery(false);
+        console.log(`[PAYMENT-SUCCESS-${requestId}] === PAYMENT SUCCESS PROCESSING COMPLETE ===`);
       }
     };
 
@@ -183,6 +207,7 @@ const PaymentSuccess = () => {
           </p>
         </div>
       </div>
+      <PixelDebugger />
     </div>
   );
 };

@@ -39,12 +39,28 @@ export const trackInitiateCheckout = (value: number, currency: string = 'USD') =
   });
 };
 
-export const trackPurchase = (value: number, currency: string = 'USD', contentName?: string) => {
-  trackEvent('Purchase', {
+export const trackPurchase = (value: number, currency: string = 'USD', contentName?: string, transactionId?: string) => {
+  // Prevent duplicate tracking for the same transaction
+  if (transactionId) {
+    const trackedTransactions = JSON.parse(localStorage.getItem('tracked_purchases') || '[]');
+    if (trackedTransactions.includes(transactionId)) {
+      console.log(`Purchase already tracked for transaction: ${transactionId}`);
+      return;
+    }
+    trackedTransactions.push(transactionId);
+    localStorage.setItem('tracked_purchases', JSON.stringify(trackedTransactions.slice(-50))); // Keep last 50
+  }
+
+  const purchaseData = {
     value: value,
     currency: currency,
     content_name: contentName,
-  });
+    content_type: 'product',
+    ...(transactionId && { transaction_id: transactionId }),
+  };
+
+  console.log('Meta Pixel: Tracking Purchase Event', purchaseData);
+  trackEvent('Purchase', purchaseData);
 };
 
 export const trackLead = (contentName?: string) => {

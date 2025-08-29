@@ -355,7 +355,6 @@ export type Database = {
           email: string
           id: string
           last_login: string
-          password_hash: string
           role: Database["public"]["Enums"]["admin_role"]
         }[]
       }
@@ -381,6 +380,10 @@ export type Database = {
       }
       is_authenticated_admin: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      verify_admin_password: {
+        Args: { input_email: string; input_password_hash: string }
         Returns: boolean
       }
     }

@@ -19,9 +19,9 @@ export const loginAdmin = async (email: string, password: string): Promise<{ use
     // Rate limiting could be added here in production
     
     const { data: adminUser, error } = await supabase
-      .from('admin_users')
-      .select('*')
-      .eq('email', email.toLowerCase().trim())
+      .rpc('authenticate_admin', { 
+        input_email: email.toLowerCase().trim() 
+      })
       .single();
 
     if (error || !adminUser) {

@@ -382,6 +382,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      validate_admin_session_token: {
+        Args: { token: string }
+        Returns: {
+          admin_data: Json
+          session_id: string
+          valid: boolean
+        }[]
+      }
       verify_admin_password: {
         Args: { input_email: string; input_password_hash: string }
         Returns: boolean

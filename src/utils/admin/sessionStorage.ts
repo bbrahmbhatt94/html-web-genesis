@@ -13,7 +13,7 @@ export const storeAdminSession = (user: AdminUser, sessionToken: string) => {
   localStorage.setItem('admin_session', JSON.stringify(sessionData));
 };
 
-// Get and validate admin session
+// Get and validate admin session using secure edge function
 export const getAdminSession = async (): Promise<AdminUser | null> => {
   try {
     const stored = localStorage.getItem('admin_session');
@@ -21,20 +21,32 @@ export const getAdminSession = async (): Promise<AdminUser | null> => {
 
     const sessionData: StoredSessionData = JSON.parse(stored);
     
-    // Check if session is expired
+    // Check if session is expired locally
     if (Date.now() > sessionData.expiresAt) {
       clearAdminSession();
       return null;
     }
 
-    // Validate session with database
-    const user = await validateAdminSession(sessionData.sessionToken);
-    if (!user) {
+    // Validate session with secure edge function
+    const { data, error } = await supabase.functions.invoke('admin-validate-session', {
+      body: {
+        sessionToken: sessionData.sessionToken
+      }
+    });
+
+    if (error || !data.valid) {
       clearAdminSession();
       return null;
     }
 
-    return user;
+    // Update stored session with fresh data
+    const updatedSessionData: StoredSessionData = {
+      ...sessionData,
+      user: data.user
+    };
+    localStorage.setItem('admin_session', JSON.stringify(updatedSessionData));
+
+    return data.user;
   } catch (error) {
     console.error('Error getting admin session:', error);
     clearAdminSession();

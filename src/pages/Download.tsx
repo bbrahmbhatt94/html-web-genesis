@@ -66,26 +66,31 @@ const Download = () => {
   }, [token]);
 
   const handleDownload = async () => {
-    if (!downloadLink) return;
+    if (!downloadLink || !token) return;
 
     setIsDownloading(true);
     try {
-      // Update download count
-      const { error: updateError } = await supabase
-        .from('download_links')
-        .update({ 
-          download_count: downloadLink.download_count + 1,
-          last_accessed: new Date().toISOString()
-        })
-        .eq('id', downloadLink.id);
+      // Use secure download edge function
+      const { data, error } = await supabase.functions.invoke('get-product-download', {
+        body: {
+          downloadToken: token
+        }
+      });
 
-      if (updateError) {
-        console.error("Failed to update download count:", updateError);
+      if (error || !data.success) {
+        console.error("Download error:", error);
+        alert(data?.error || "Download failed. Please try again or contact support.");
+        return;
       }
 
-      // For now, show instruction to contact support for actual file
-      // In production, this would generate a signed URL to the actual file
-      alert("Thank you! For security reasons, your actual download will be provided via a secure link sent to your email. Please check your email or contact support@luxevisionshop.com if you need assistance.");
+      // Redirect to the signed URL for download
+      window.open(data.downloadUrl, '_blank');
+      
+      // Update local state to reflect the new download count
+      setDownloadLink(prev => ({
+        ...prev,
+        download_count: prev.download_count + 1
+      }));
       
     } catch (error) {
       console.error("Download error:", error);

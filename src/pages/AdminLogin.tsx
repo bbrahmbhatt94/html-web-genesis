@@ -1,127 +1,166 @@
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { loginAdmin, storeAdminSession } from '@/utils/admin';
-import { useToast } from '@/hooks/use-toast';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
+import { sanitizeInput, validateEmail } from '@/utils/inputValidation';
+import { rateLimiter } from '@/utils/security/rateLimiter';
+import { storeAdminSession } from '@/utils/admin';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [attempts, setAttempts] = useState(0);
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const [error, setError] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Basic rate limiting
-  const maxAttempts = 5;
-  const isRateLimited = attempts >= maxAttempts;
+  // Check if already authenticated
+  useEffect(() => {
+    const checkAuth = async () => {
+      const stored = localStorage.getItem('admin_session');
+      if (stored) {
+        try {
+          const sessionData = JSON.parse(stored);
+          if (Date.now() < sessionData.expiresAt) {
+            setIsAuthenticated(true);
+          }
+        } catch (error) {
+          localStorage.removeItem('admin_session');
+        }
+      }
+    };
+    checkAuth();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (isRateLimited) {
-      toast({
-        title: "Too many attempts",
-        description: "Please refresh the page and try again",
-        variant: "destructive",
-      });
+    setError('');
+
+    // Input validation
+    const sanitizedEmail = sanitizeInput(email);
+    if (!validateEmail(sanitizedEmail) || !password) {
+      setError('Please enter a valid email and password');
+      return;
+    }
+
+    // Rate limiting check
+    if (rateLimiter.isRateLimited(sanitizedEmail)) {
+      const timeUntilReset = Math.ceil(rateLimiter.getTimeUntilReset(sanitizedEmail) / 60000);
+      setError(`Too many failed attempts. Please try again in ${timeUntilReset} minutes.`);
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const result = await loginAdmin(email, password);
-      if (result) {
-        storeAdminSession(result.user, result.sessionToken);
-        toast({
-          title: "Login successful",
-          description: "Welcome to the admin dashboard",
-        });
-        navigate('/admin/dashboard');
-      } else {
-        setAttempts(prev => prev + 1);
-        toast({
-          title: "Login failed",
-          description: "Invalid email or password",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      setAttempts(prev => prev + 1);
-      toast({
-        title: "Login error",
-        description: "An error occurred during login",
-        variant: "destructive",
+      // Use secure admin login edge function
+      const { data, error: loginError } = await supabase.functions.invoke('admin-login', {
+        body: {
+          email: sanitizedEmail,
+          password: password
+        }
       });
+
+      if (loginError || !data.success) {
+        // Record failed attempt
+        rateLimiter.recordAttempt(sanitizedEmail);
+        const remaining = rateLimiter.getRemainingAttempts(sanitizedEmail);
+        setError(data?.error || 'Invalid credentials');
+        
+        if (remaining <= 2 && remaining > 0) {
+          setError(`${data?.error || 'Invalid credentials'}. ${remaining} attempts remaining.`);
+        }
+        return;
+      }
+
+      // Store session securely
+      storeAdminSession(data.user, data.sessionToken);
+      setIsAuthenticated(true);
+
+    } catch (error) {
+      console.error('Login error:', error);
+      rateLimiter.recordAttempt(sanitizedEmail);
+      setError('Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
+  if (isAuthenticated) {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a] flex items-center justify-center px-4">
       <Card className="w-full max-w-md bg-[#2d2d2d] border-[rgba(255,215,0,0.2)]">
-        <CardHeader>
-          <CardTitle className="text-2xl text-center text-[#ffd700]">
-            Admin Login
-          </CardTitle>
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold text-[#ffd700]">Admin Login</CardTitle>
+          <CardDescription className="text-gray-300">
+            Secure admin authentication
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
-            <div>
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-white">Email</Label>
               <Input
+                id="email"
                 type="email"
-                placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@example.com"
                 required
-                disabled={isLoading || isRateLimited}
-                className="bg-[#1a1a1a] border-[rgba(255,215,0,0.2)] text-white"
+                disabled={isLoading}
+                className="bg-[#1a1a1a] border-gray-600 text-white"
               />
             </div>
-            <div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-white">Password</Label>
               <Input
+                id="password"
                 type="password"
-                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
                 required
-                disabled={isLoading || isRateLimited}
-                className="bg-[#1a1a1a] border-[rgba(255,215,0,0.2)] text-white"
+                disabled={isLoading}
+                className="bg-[#1a1a1a] border-gray-600 text-white"
               />
             </div>
+
+            {error && (
+              <Alert className="border-red-500 bg-red-500/10">
+                <AlertDescription className="text-red-400">
+                  {error}
+                </AlertDescription>
+              </Alert>
+            )}
+
             <Button
               type="submit"
-              disabled={isLoading || isRateLimited}
               className="w-full bg-gradient-to-r from-[#ffd700] to-[#ffed4e] text-[#1a1a1a] font-bold"
+              disabled={isLoading}
             >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Logging in...
+                  Signing in...
                 </>
               ) : (
-                'Login'
+                'Sign In'
               )}
             </Button>
           </form>
-          
-          {isRateLimited && (
-            <p className="text-sm text-red-400 mt-4 text-center">
-              Too many failed attempts. Please refresh the page to try again.
-            </p>
-          )}
-          
-          {attempts > 0 && attempts < maxAttempts && (
-            <p className="text-sm text-yellow-400 mt-4 text-center">
-              {maxAttempts - attempts} attempts remaining
-            </p>
-          )}
+
+          <div className="mt-4 text-sm text-gray-400 text-center">
+            <p>Secure admin authentication system</p>
+          </div>
         </CardContent>
       </Card>
     </div>

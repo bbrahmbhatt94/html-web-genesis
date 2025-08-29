@@ -12,3 +12,12 @@ verify_jwt = false
 
 [functions.test-email]
 verify_jwt = false
+
+[functions.admin-login]
+verify_jwt = false
+
+[functions.admin-validate-session]
+verify_jwt = false
+
+[functions.get-product-download]
+verify_jwt = false

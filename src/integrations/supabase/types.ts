@@ -382,6 +382,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_bulk_update_review_status: {
+        Args: {
+          p_review_ids: string[]
+          p_status: Database["public"]["Enums"]["review_status"]
+          session_token?: string
+        }
+        Returns: number
+      }
       admin_list_reviews: {
         Args:
           | { p_status?: Database["public"]["Enums"]["review_status"] }
@@ -410,6 +418,14 @@ export type Database = {
           role: Database["public"]["Enums"]["admin_role"]
           updated_at: string
         }[]
+      }
+      admin_update_review_status: {
+        Args: {
+          p_review_id: string
+          p_status: Database["public"]["Enums"]["review_status"]
+          session_token?: string
+        }
+        Returns: boolean
       }
       authenticate_admin: {
         Args: { input_email: string }

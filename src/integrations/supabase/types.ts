@@ -349,6 +349,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_list_reviews: {
+        Args: { p_status?: Database["public"]["Enums"]["review_status"] }
+        Returns: {
+          approved_at: string
+          created_at: string
+          customer_email: string
+          customer_name: string
+          id: string
+          rating: number
+          review_text: string
+          status: Database["public"]["Enums"]["review_status"]
+        }[]
+      }
       authenticate_admin: {
         Args: { input_email: string }
         Returns: {

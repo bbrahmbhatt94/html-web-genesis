@@ -33,16 +33,11 @@ const AdminReviews = () => {
   const fetchReviews = async () => {
     setLoading(true);
     try {
-      let query = supabase
-        .from('reviews')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (filter !== 'all') {
-        query = query.eq('status', filter);
-      }
-
-      const { data, error } = await query;
+      // Use secure RPC function that only admins can access
+      const filterParam = filter === 'all' ? null : filter;
+      const { data, error } = await supabase.rpc('admin_list_reviews', {
+        p_status: filterParam
+      });
 
       if (error) throw error;
       setReviews(data || []);

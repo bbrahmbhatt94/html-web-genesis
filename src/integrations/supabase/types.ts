@@ -346,7 +346,30 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      approved_reviews: {
+        Row: {
+          created_at: string | null
+          customer_name: string | null
+          id: string | null
+          rating: number | null
+          review_text: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          customer_name?: string | null
+          id?: string | null
+          rating?: number | null
+          review_text?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          customer_name?: string | null
+          id?: string | null
+          rating?: number | null
+          review_text?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       authenticate_admin: {
@@ -357,6 +380,10 @@ export type Database = {
           last_login: string
           role: Database["public"]["Enums"]["admin_role"]
         }[]
+      }
+      can_view_public_review_fields: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       cleanup_expired_admin_sessions: {
         Args: Record<PropertyKey, never>

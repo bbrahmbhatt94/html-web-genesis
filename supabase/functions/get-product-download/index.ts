@@ -1,9 +1,30 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+// Get allowed origins from environment or default to localhost for development
+const getAllowedOrigins = () => {
+  const origins = Deno.env.get('ALLOWED_ORIGINS');
+  if (origins) {
+    return origins.split(',').map(o => o.trim());
+  }
+  // Default allowed origins for development
+  return [
+    'https://ypsufujqhpixachonnnh.lovableproject.com',
+    'http://localhost:5173',
+    'http://localhost:3000'
+  ];
+};
+
+const getCorsHeaders = (origin: string | null) => {
+  const allowedOrigins = getAllowedOrigins();
+  const isAllowed = origin && allowedOrigins.includes(origin);
+  
+  return {
+    'Access-Control-Allow-Origin': isAllowed ? origin : 'null',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Max-Age': '86400',
+  };
 };
 
 interface GetDownloadRequest {
@@ -11,6 +32,9 @@ interface GetDownloadRequest {
 }
 
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -47,22 +71,44 @@ serve(async (req) => {
 
     console.log('Processing download request for token:', body.downloadToken);
 
+    // Validate download token format (should be 64 char hex)
+    if (!/^[a-f0-9]{64}$/.test(body.downloadToken)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid token format' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     // Validate download token and get download link info
     const { data: downloadLink, error: linkError } = await supabase
       .from('download_links')
-      .select('*')
+      .select('id, download_count, max_downloads, expires_at, is_active, order_id')
       .eq('download_token', body.downloadToken)
       .eq('is_active', true)
       .gt('expires_at', new Date().toISOString())
-      .lt('download_count', supabase.rpc('max_downloads'))
       .single();
 
     if (linkError || !downloadLink) {
-      console.log('Invalid or expired download token:', body.downloadToken);
+      console.log('Invalid or expired download token');
       return new Response(
         JSON.stringify({ error: 'Invalid or expired download token' }),
         { 
           status: 404, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    // Check download count limit
+    if (downloadLink.download_count >= downloadLink.max_downloads) {
+      console.log('Download limit exceeded for token');
+      return new Response(
+        JSON.stringify({ error: 'Download limit exceeded' }),
+        { 
+          status: 403, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );

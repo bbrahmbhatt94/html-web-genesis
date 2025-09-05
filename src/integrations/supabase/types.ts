@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_login_attempts: {
+        Row: {
+          attempt_count: number | null
+          blocked_until: string | null
+          created_at: string | null
+          email: string | null
+          first_attempt: string | null
+          id: string
+          ip_address: unknown
+          last_attempt: string | null
+        }
+        Insert: {
+          attempt_count?: number | null
+          blocked_until?: string | null
+          created_at?: string | null
+          email?: string | null
+          first_attempt?: string | null
+          id?: string
+          ip_address: unknown
+          last_attempt?: string | null
+        }
+        Update: {
+          attempt_count?: number | null
+          blocked_until?: string | null
+          created_at?: string | null
+          email?: string | null
+          first_attempt?: string | null
+          id?: string
+          ip_address?: unknown
+          last_attempt?: string | null
+        }
+        Relationships: []
+      }
       admin_sessions: {
         Row: {
           admin_id: string
@@ -226,7 +259,7 @@ export type Database = {
         Insert: {
           created_at?: string
           download_count?: number | null
-          download_token: string
+          download_token?: string
           expires_at: string
           id?: string
           is_active?: boolean | null
@@ -375,6 +408,20 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      check_login_rate_limit: {
+        Args: {
+          p_block_minutes?: number
+          p_email?: string
+          p_ip_address: unknown
+          p_max_attempts?: number
+          p_window_minutes?: number
+        }
+        Returns: {
+          allowed: boolean
+          attempts_remaining: number
+          blocked_until: string
+        }[]
+      }
       cleanup_expired_admin_sessions: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -398,6 +445,10 @@ export type Database = {
       is_authenticated_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      reset_login_attempts: {
+        Args: { p_email?: string; p_ip_address: unknown }
+        Returns: undefined
       }
       validate_admin_session_token: {
         Args: { token: string }

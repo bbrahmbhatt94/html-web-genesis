@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { AdminUser } from "@/types/admin";
 import { sanitizeInput, validateEmail } from "@/utils/inputValidation";
 
-// Secure admin login using edge function
+// Update the admin authentication service to handle rate limiting responses
 export const loginAdmin = async (email: string, password: string): Promise<{ user: AdminUser; sessionToken: string } | null> => {
   try {
     // Input validation and sanitization
@@ -30,11 +30,26 @@ export const loginAdmin = async (email: string, password: string): Promise<{ use
 
     if (error) {
       console.error('Admin login error:', error);
+      
+      // Handle rate limiting specifically
+      if (error.message?.includes('429') || error.message?.includes('Too many')) {
+        throw new Error('Too many login attempts. Please try again later.');
+      }
+      
       throw new Error('Login failed');
     }
 
     if (!data.success) {
-      throw new Error(data.error || 'Invalid credentials');
+      const errorMessage = data.error || 'Invalid credentials';
+      
+      // Handle rate limiting from response
+      if (data.blocked_until) {
+        const blockedUntil = new Date(data.blocked_until);
+        const timeRemaining = Math.ceil((blockedUntil.getTime() - Date.now()) / (1000 * 60));
+        throw new Error(`Account temporarily locked. Try again in ${timeRemaining} minutes.`);
+      }
+      
+      throw new Error(errorMessage);
     }
 
     return {

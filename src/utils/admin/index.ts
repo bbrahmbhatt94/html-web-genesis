@@ -18,4 +18,4 @@ export {
   storeAdminSession,
   getAdminSession,
   clearAdminSession
-} from "./sessionStorage";
+} from "./secureSessionStorage";

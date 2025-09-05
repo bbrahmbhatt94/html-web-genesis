@@ -396,7 +396,7 @@ export type Database = {
         }[]
       }
       admin_list_users: {
-        Args: Record<PropertyKey, never>
+        Args: Record<PropertyKey, never> | { session_token?: string }
         Returns: {
           created_at: string
           email: string

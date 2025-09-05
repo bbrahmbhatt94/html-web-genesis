@@ -383,7 +383,12 @@ export type Database = {
     }
     Functions: {
       admin_list_reviews: {
-        Args: { p_status?: Database["public"]["Enums"]["review_status"] }
+        Args:
+          | { p_status?: Database["public"]["Enums"]["review_status"] }
+          | {
+              p_status?: Database["public"]["Enums"]["review_status"]
+              session_token?: string
+            }
         Returns: {
           approved_at: string
           created_at: string

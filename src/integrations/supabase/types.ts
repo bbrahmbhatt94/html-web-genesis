@@ -395,6 +395,17 @@ export type Database = {
           status: Database["public"]["Enums"]["review_status"]
         }[]
       }
+      admin_list_users: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          email: string
+          id: string
+          last_login: string
+          role: Database["public"]["Enums"]["admin_role"]
+          updated_at: string
+        }[]
+      }
       authenticate_admin: {
         Args: { input_email: string }
         Returns: {
@@ -440,6 +451,10 @@ export type Database = {
       }
       is_admin: {
         Args: { user_email: string }
+        Returns: boolean
+      }
+      is_admin_via_session: {
+        Args: { session_token?: string }
         Returns: boolean
       }
       is_authenticated_admin: {

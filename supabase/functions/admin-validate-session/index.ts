@@ -104,7 +104,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         valid: true,
-        user: validation.admin_data
+        user: validation.admin_data,
+        session_token: body.sessionToken  // Include for client context
       }),
       { 
         status: 200, 
